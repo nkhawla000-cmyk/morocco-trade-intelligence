@@ -1,0 +1,127 @@
+table mart_partner_segments
+	lineageTag: 2b36b1d1-c7cb-5cf9-8337-548ec447e349
+
+	measure 'Part des exportations (moyenne)' = ```
+			AVERAGE ( mart_partner_segments[export_share] )
+			```
+		formatString: 0.0%
+		lineageTag: e22e70f1-6679-5d90-9f62-7f6c54b8b1e1
+
+	measure 'Croissance annuelle (moyenne)' = ```
+			AVERAGE ( mart_partner_segments[growth_rate] )
+			```
+		formatString: 0.0%
+		lineageTag: add926ea-1a59-598f-9857-c20715691468
+
+	measure 'Commerce moyen (USD)' = ```
+			SUM ( mart_partner_segments[exports_avg_usd] ) + SUM ( mart_partner_segments[imports_avg_usd] )
+			```
+		formatString: #,0
+		lineageTag: 7106e685-2e71-5a13-adc4-c952aec8d2e7
+
+	measure 'Partenaires segmentés' = ```
+			COUNTROWS ( mart_partner_segments )
+			```
+		formatString: 0
+		lineageTag: 4b2ba84f-dd37-5906-87fb-ba7af3506c1c
+
+	column partner_code
+		dataType: int64
+		formatString: 0
+		lineageTag: 0a32de83-4649-5437-8ebe-d50c9c19ea60
+		summarizeBy: none
+		sourceColumn: partner_code
+
+		annotation SummarizationSetBy = User
+
+	column partner_name
+		dataType: string
+		lineageTag: 735120c5-6f81-5252-b5c4-bbb3f4cd6ca5
+		summarizeBy: none
+		sourceColumn: partner_name
+
+		annotation SummarizationSetBy = User
+
+	column segment_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 8281b19b-b2b9-5ee2-991e-ad78cfb71c3f
+		summarizeBy: none
+		sourceColumn: segment_id
+
+		annotation SummarizationSetBy = User
+
+	column segment_label
+		dataType: string
+		lineageTag: 8e454547-c4ed-5e6e-a3cb-5813d3471456
+		summarizeBy: none
+		sourceColumn: segment_label
+
+		annotation SummarizationSetBy = User
+
+	column exports_avg_usd
+		dataType: double
+		formatString: #,0
+		lineageTag: 6cfa540a-d901-561d-9025-61aeb03a4701
+		summarizeBy: none
+		sourceColumn: exports_avg_usd
+
+		annotation SummarizationSetBy = User
+
+	column imports_avg_usd
+		dataType: double
+		formatString: #,0
+		lineageTag: 651d7c15-bf8a-5d40-abdd-c7430d7623c4
+		summarizeBy: none
+		sourceColumn: imports_avg_usd
+
+		annotation SummarizationSetBy = User
+
+	column log10_trade_usd
+		dataType: double
+		formatString: #,0
+		lineageTag: 93f804b2-5eb1-5aac-b2d2-2d7cd125b37f
+		summarizeBy: none
+		sourceColumn: log10_trade_usd
+
+		annotation SummarizationSetBy = User
+
+	column export_share
+		dataType: double
+		formatString: 0.0%
+		lineageTag: f402b47f-75e0-504b-b919-df8a3e3645f5
+		summarizeBy: none
+		sourceColumn: export_share
+
+		annotation SummarizationSetBy = User
+
+	column growth_rate
+		dataType: double
+		formatString: 0.0%
+		lineageTag: c27578bb-6e61-5dd8-a7e8-56e0b1c0685a
+		summarizeBy: none
+		sourceColumn: growth_rate
+
+		annotation SummarizationSetBy = User
+
+	column automotive_export_share
+		dataType: double
+		formatString: 0.0%
+		lineageTag: adf62216-b13f-5dc5-8a0f-8063b99d6930
+		summarizeBy: none
+		sourceColumn: automotive_export_share
+
+		annotation SummarizationSetBy = User
+
+	partition mart_partner_segments = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/mart_partner_segments.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"partner_code", "partner_name", "segment_id", "segment_label", "exports_avg_usd", "imports_avg_usd", "log10_trade_usd", "export_share", "growth_rate", "automotive_export_share"}),
+				    Typed = Table.TransformColumnTypes(Blanks, {{"partner_code", Int64.Type}, {"partner_name", type text}, {"segment_id", Int64.Type}, {"segment_label", type text}, {"exports_avg_usd", type number}, {"imports_avg_usd", type number}, {"log10_trade_usd", type number}, {"export_share", type number}, {"growth_rate", type number}, {"automotive_export_share", type number}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

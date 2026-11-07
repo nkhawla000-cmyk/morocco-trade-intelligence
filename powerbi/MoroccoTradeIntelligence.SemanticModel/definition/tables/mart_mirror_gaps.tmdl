@@ -1,0 +1,113 @@
+table mart_mirror_gaps
+	lineageTag: 2c60bf45-2517-53b1-889a-d289f62bd55c
+
+	measure 'Comparaisons miroir' = ```
+			COUNTROWS ( mart_mirror_gaps )
+			```
+		formatString: 0
+		lineageTag: 11cda18e-b21a-5197-be1f-f2e07ec31f59
+
+	measure 'Comparaisons à examiner' = ```
+			CALCULATE ( COUNTROWS ( mart_mirror_gaps ), mart_mirror_gaps[needs_review] = TRUE () )
+			```
+		formatString: 0
+		lineageTag: 127f8780-1485-588b-87d0-39d8488eee89
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: 9017173c-bc31-5d4a-8c41-000c87d58494
+		summarizeBy: none
+		sourceColumn: year
+
+		annotation SummarizationSetBy = User
+
+	column flow_code
+		dataType: string
+		lineageTag: b8c6d62b-86cf-5ec6-b6da-209b13ea67cb
+		summarizeBy: none
+		sourceColumn: flow_code
+
+		annotation SummarizationSetBy = User
+
+	column comparison
+		dataType: string
+		lineageTag: 2cd862ea-0391-5075-9b04-ad5bf2075176
+		summarizeBy: none
+		sourceColumn: comparison
+
+		annotation SummarizationSetBy = User
+
+	column counterpart_code
+		dataType: int64
+		formatString: 0
+		lineageTag: 755cdd3c-390d-56b8-9a16-60c8a4dac670
+		summarizeBy: none
+		sourceColumn: counterpart_code
+
+		annotation SummarizationSetBy = User
+
+	column counterpart_name
+		dataType: string
+		lineageTag: 6b036efd-556c-592d-b288-0ec9164b9441
+		summarizeBy: none
+		sourceColumn: counterpart_name
+
+		annotation SummarizationSetBy = User
+
+	column declared_value_usd
+		dataType: double
+		formatString: #,0
+		lineageTag: 74ad9546-7286-54d0-a48e-e8fbacf54aba
+		summarizeBy: none
+		sourceColumn: declared_value_usd
+
+		annotation SummarizationSetBy = User
+
+	column mirror_value_usd
+		dataType: double
+		formatString: #,0
+		lineageTag: ce2d853a-c534-5ba3-b5fe-693b61ad27d2
+		summarizeBy: none
+		sourceColumn: mirror_value_usd
+
+		annotation SummarizationSetBy = User
+
+	column gap_usd
+		dataType: double
+		formatString: #,0
+		lineageTag: 1911203d-b4bc-5bf5-a056-00097a0c1d6e
+		summarizeBy: none
+		sourceColumn: gap_usd
+
+		annotation SummarizationSetBy = User
+
+	column gap_ratio
+		dataType: double
+		formatString: 0.0%
+		lineageTag: ddacce95-07af-51aa-bd6b-273503dc6934
+		summarizeBy: none
+		sourceColumn: gap_ratio
+
+		annotation SummarizationSetBy = User
+
+	column needs_review
+		dataType: boolean
+		lineageTag: a9007e36-61c1-5a40-a574-ba763f205679
+		summarizeBy: none
+		sourceColumn: needs_review
+
+		annotation SummarizationSetBy = User
+
+	partition mart_mirror_gaps = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/mart_mirror_gaps.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"year", "flow_code", "comparison", "counterpart_code", "counterpart_name", "declared_value_usd", "mirror_value_usd", "gap_usd", "gap_ratio", "needs_review"}),
+				    Typed = Table.TransformColumnTypes(Blanks, {{"year", Int64.Type}, {"flow_code", type text}, {"comparison", type text}, {"counterpart_code", Int64.Type}, {"counterpart_name", type text}, {"declared_value_usd", type number}, {"mirror_value_usd", type number}, {"gap_usd", type number}, {"gap_ratio", type number}, {"needs_review", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

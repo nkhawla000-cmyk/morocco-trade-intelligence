@@ -1,0 +1,118 @@
+table mart_chapter_structure
+	lineageTag: e4426966-7763-5f0b-ae46-36d9b6059297
+
+	measure 'Part des exportations par chapitre (top 10)' = ```
+			VAR SelectedYear = [Année affichée]
+			RETURN
+			    CALCULATE (
+			        SUM ( mart_chapter_structure[share_of_chapters] ),
+			        mart_chapter_structure[year] = SelectedYear,
+			        mart_chapter_structure[flow_code] = "X",
+			        mart_chapter_structure[chapter_rank] <= 10
+			    )
+			```
+		formatString: 0.0%
+		lineageTag: 5ffee07f-2359-5b9b-8cc1-af759cfa7555
+
+	measure 'Part des importations par chapitre (top 10)' = ```
+			VAR SelectedYear = [Année affichée]
+			RETURN
+			    CALCULATE (
+			        SUM ( mart_chapter_structure[share_of_chapters] ),
+			        mart_chapter_structure[year] = SelectedYear,
+			        mart_chapter_structure[flow_code] = "M",
+			        mart_chapter_structure[chapter_rank] <= 10
+			    )
+			```
+		formatString: 0.0%
+		lineageTag: 69ce1a68-0766-545b-aac0-2d205a0a93a4
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: 1a23bb19-d7c1-5b00-a987-94098093ef69
+		summarizeBy: none
+		sourceColumn: year
+
+		annotation SummarizationSetBy = User
+
+	column flow_code
+		dataType: string
+		lineageTag: 5c0cd46e-f49c-5c37-bd03-5ba4d5d34794
+		summarizeBy: none
+		sourceColumn: flow_code
+
+		annotation SummarizationSetBy = User
+
+	column hs_chapter
+		dataType: string
+		lineageTag: d40a9b1f-094b-5b7e-a3dc-313e601392e2
+		summarizeBy: none
+		sourceColumn: hs_chapter
+
+		annotation SummarizationSetBy = User
+
+	column product_description
+		dataType: string
+		lineageTag: e4d57482-ab9c-5956-bd12-0aa107d382e7
+		summarizeBy: none
+		sourceColumn: product_description
+
+		annotation SummarizationSetBy = User
+
+	column chapter_label
+		dataType: string
+		lineageTag: 181b7d8a-eaf6-5bd6-a1ac-79ca4fc8416a
+		summarizeBy: none
+		sourceColumn: chapter_label
+
+		annotation SummarizationSetBy = User
+
+	column trade_value_usd
+		dataType: double
+		formatString: #,0
+		lineageTag: 7587301d-e96d-54ae-a643-8cfec9bd09fe
+		summarizeBy: none
+		sourceColumn: trade_value_usd
+
+		annotation SummarizationSetBy = User
+
+	column share_of_chapters
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 3b6e4948-fa22-57da-a833-6da04795e725
+		summarizeBy: none
+		sourceColumn: share_of_chapters
+
+		annotation SummarizationSetBy = User
+
+	column chapter_rank
+		dataType: int64
+		formatString: 0
+		lineageTag: b76b5ec0-628d-5951-aac3-722ea980fba8
+		summarizeBy: none
+		sourceColumn: chapter_rank
+
+		annotation SummarizationSetBy = User
+
+	column growth_vs_previous_year
+		dataType: double
+		formatString: 0.0%
+		lineageTag: f5d60d53-f8f3-5547-bb6b-2df78ebbce48
+		summarizeBy: none
+		sourceColumn: growth_vs_previous_year
+
+		annotation SummarizationSetBy = User
+
+	partition mart_chapter_structure = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/mart_chapter_structure.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"year", "flow_code", "hs_chapter", "product_description", "chapter_label", "trade_value_usd", "share_of_chapters", "chapter_rank", "growth_vs_previous_year"}),
+				    Typed = Table.TransformColumnTypes(Blanks, {{"year", Int64.Type}, {"flow_code", type text}, {"hs_chapter", type text}, {"product_description", type text}, {"chapter_label", type text}, {"trade_value_usd", type number}, {"share_of_chapters", type number}, {"chapter_rank", Int64.Type}, {"growth_vs_previous_year", type number}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

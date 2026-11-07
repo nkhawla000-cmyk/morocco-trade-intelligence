@@ -1,0 +1,38 @@
+table dim_flow
+	lineageTag: 6962c878-7d13-594b-bd69-505f4518e378
+
+	column flow_code
+		dataType: string
+		lineageTag: 6b71b367-1801-52a0-80d3-94b8885a816b
+		summarizeBy: none
+		sourceColumn: flow_code
+
+		annotation SummarizationSetBy = User
+
+	column flow_name
+		dataType: string
+		lineageTag: 7adf514a-b4c2-564c-8016-41174568d498
+		summarizeBy: none
+		sourceColumn: flow_name
+
+		annotation SummarizationSetBy = User
+
+	column flow_name_fr
+		dataType: string
+		lineageTag: 61c7be3b-73c1-5c2b-98be-c962b05b8060
+		summarizeBy: none
+		sourceColumn: flow_name_fr
+
+		annotation SummarizationSetBy = User
+
+	partition dim_flow = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(Binary.Buffer(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/dim_flow.parquet"))),
+				    Selected = Table.SelectColumns(Source, {"flow_code", "flow_name", "flow_name_fr"}),
+				    Typed = Table.TransformColumnTypes(Selected, {{"flow_code", type text}, {"flow_name", type text}, {"flow_name_fr", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

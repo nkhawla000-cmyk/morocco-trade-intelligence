@@ -1,0 +1,85 @@
+table mart_segment_profiles
+	lineageTag: 90a5849f-c9ab-5592-80c4-a74cc7be97f3
+
+	column segment_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 3d68abbe-6cdf-55ea-af6d-d59bdfa2a2a5
+		summarizeBy: none
+		sourceColumn: segment_id
+
+		annotation SummarizationSetBy = User
+
+	column segment_label
+		dataType: string
+		lineageTag: b9ac4ed2-539d-53f9-b52a-18754e16168f
+		summarizeBy: none
+		sourceColumn: segment_label
+
+		annotation SummarizationSetBy = User
+
+	column partner_count
+		dataType: int64
+		formatString: 0
+		lineageTag: be5b30df-975c-58ff-8d2a-ad3af68c4699
+		summarizeBy: none
+		sourceColumn: partner_count
+
+		annotation SummarizationSetBy = User
+
+	column total_trade_avg_usd
+		dataType: double
+		formatString: #,0
+		lineageTag: b41b9ae3-227f-58ec-abe6-f4b32a8741e5
+		summarizeBy: none
+		sourceColumn: total_trade_avg_usd
+
+		annotation SummarizationSetBy = User
+
+	column median_export_share
+		dataType: double
+		formatString: 0.0%
+		lineageTag: d3370a79-aaa0-563a-960e-7e0100732bdf
+		summarizeBy: none
+		sourceColumn: median_export_share
+
+		annotation SummarizationSetBy = User
+
+	column median_growth_rate
+		dataType: double
+		formatString: 0.0%
+		lineageTag: a102692b-4d83-54b7-9e0d-7355d54a3d57
+		summarizeBy: none
+		sourceColumn: median_growth_rate
+
+		annotation SummarizationSetBy = User
+
+	column median_automotive_export_share
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 3705c77d-d7c3-5342-b150-7d397e596539
+		summarizeBy: none
+		sourceColumn: median_automotive_export_share
+
+		annotation SummarizationSetBy = User
+
+	column example_partners
+		dataType: string
+		lineageTag: fda38b62-198b-57c8-a40e-52aab77da281
+		summarizeBy: none
+		sourceColumn: example_partners
+
+		annotation SummarizationSetBy = User
+
+	partition mart_segment_profiles = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/mart_segment_profiles.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"segment_id", "segment_label", "partner_count", "total_trade_avg_usd", "median_export_share", "median_growth_rate", "median_automotive_export_share", "example_partners"}),
+				    Typed = Table.TransformColumnTypes(Blanks, {{"segment_id", Int64.Type}, {"segment_label", type text}, {"partner_count", Int64.Type}, {"total_trade_avg_usd", type number}, {"median_export_share", type number}, {"median_growth_rate", type number}, {"median_automotive_export_share", type number}, {"example_partners", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

@@ -1,4 +1,4 @@
-cmd_code,focus_group,focus_label
-8703,Automotive,Passenger cars
-8708,Automotive,Vehicle parts and accessories
-8544,Automotive,Insulated wire and cable (incl. vehicle wiring sets)
+cmd_code,focus_group,focus_label,focus_label_fr
+8703,Automotive,Passenger cars,Voitures particulières
+8708,Automotive,Vehicle parts and accessories,Pièces et accessoires automobiles
+8544,Automotive,Insulated wire and cable (incl. vehicle wiring sets),Fils et câbles isolés (dont faisceaux)

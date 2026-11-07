@@ -24,6 +24,7 @@ select
     p.hs_level,
     f.focus_group,
     f.focus_label,
+    f.focus_label_fr,
     f.cmd_code is not null as is_focus_product
 from products as p
 left join {{ ref('hs_focus_products') }} as f

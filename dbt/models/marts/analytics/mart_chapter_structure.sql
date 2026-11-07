@@ -17,6 +17,11 @@ select
     flow_code,
     cmd_code as hs_chapter,
     product_description,
+    -- Short label for charts: chapter number and a truncated description.
+    cmd_code || ' · ' || case
+        when length(product_description) > 45 then left(product_description, 42) || '…'
+        else product_description
+    end as chapter_label,
     trade_value_usd,
     trade_value_usd / sum(trade_value_usd) over (partition by year, flow_code) as share_of_chapters,
     rank() over (partition by year, flow_code order by trade_value_usd desc) as chapter_rank,

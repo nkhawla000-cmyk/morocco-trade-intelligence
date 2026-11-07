@@ -1,0 +1,37 @@
+table dim_year
+	lineageTag: eee7ba8b-1d35-56b8-9c80-c97fd1b10003
+
+	measure 'Année affichée' = ```
+			SELECTEDVALUE ( dim_year[year], MAX ( dim_year[year] ) )
+			```
+		formatString: 0
+		lineageTag: 1a5b43bf-ad42-5355-9e30-c82e69c51206
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: 6c621cd3-b6ae-57b3-a55a-ed265d4bb83e
+		summarizeBy: none
+		sourceColumn: year
+
+		annotation SummarizationSetBy = User
+
+	column is_latest_year
+		dataType: boolean
+		lineageTag: 77900064-d4a8-534a-90f9-8475771bb20b
+		summarizeBy: none
+		sourceColumn: is_latest_year
+
+		annotation SummarizationSetBy = User
+
+	partition dim_year = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(Binary.Buffer(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/dim_year.parquet"))),
+				    Selected = Table.SelectColumns(Source, {"year", "is_latest_year"}),
+				    Typed = Table.TransformColumnTypes(Selected, {{"year", Int64.Type}, {"is_latest_year", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

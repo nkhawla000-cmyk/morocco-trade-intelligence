@@ -1,0 +1,26 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["dim_year", "dim_flow", "dim_country", "dim_product", "fct_trade", "mart_trade_overview", "mart_partner_shares", "mart_chapter_structure", "mart_concentration", "mart_concentration_latest", "mart_mirror_gaps", "mart_flow_anomalies", "mart_partner_segments", "mart_segment_profiles"]
+
+ref table dim_year
+ref table dim_flow
+ref table dim_country
+ref table dim_product
+ref table fct_trade
+ref table mart_trade_overview
+ref table mart_partner_shares
+ref table mart_chapter_structure
+ref table mart_concentration
+ref table mart_concentration_latest
+ref table mart_mirror_gaps
+ref table mart_flow_anomalies
+ref table mart_partner_segments
+ref table mart_segment_profiles

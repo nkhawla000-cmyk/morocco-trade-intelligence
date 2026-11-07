@@ -35,3 +35,4 @@ seeds:
         cmd_code: varchar
         focus_group: varchar
         focus_label: varchar
+        focus_label_fr: varchar

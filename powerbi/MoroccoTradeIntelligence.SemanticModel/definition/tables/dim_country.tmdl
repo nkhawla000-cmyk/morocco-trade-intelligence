@@ -1,0 +1,71 @@
+table dim_country
+	lineageTag: 1d38db3c-e2de-5428-a00e-56d2508ff69a
+
+	column country_code
+		dataType: int64
+		formatString: 0
+		lineageTag: e510f06c-8b1f-5f97-bf77-7c5278764ccb
+		summarizeBy: none
+		sourceColumn: country_code
+
+		annotation SummarizationSetBy = User
+
+	column iso3
+		dataType: string
+		lineageTag: acdf66da-30a5-5e9a-9034-6e5dcde82541
+		summarizeBy: none
+		sourceColumn: iso3
+
+		annotation SummarizationSetBy = User
+
+	column country_name
+		dataType: string
+		lineageTag: f61fa4fb-a4bb-58f5-a430-3dfb3d47a0a5
+		summarizeBy: none
+		sourceColumn: country_name
+
+		annotation SummarizationSetBy = User
+
+	column is_world
+		dataType: boolean
+		lineageTag: 3e349007-b60e-5822-8939-09a015117f20
+		summarizeBy: none
+		sourceColumn: is_world
+
+		annotation SummarizationSetBy = User
+
+	column is_special_area
+		dataType: boolean
+		lineageTag: 47f4ff09-37d4-5399-8bcb-17a978bb3065
+		summarizeBy: none
+		sourceColumn: is_special_area
+
+		annotation SummarizationSetBy = User
+
+	column is_morocco
+		dataType: boolean
+		lineageTag: 6885e6de-5ca9-585f-b6f7-1b1eaa532433
+		summarizeBy: none
+		sourceColumn: is_morocco
+
+		annotation SummarizationSetBy = User
+
+	column is_mirror_partner
+		dataType: boolean
+		lineageTag: bdd6e4e7-ec16-5872-8c56-a3f710cd3650
+		summarizeBy: none
+		sourceColumn: is_mirror_partner
+
+		annotation SummarizationSetBy = User
+
+	partition dim_country = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(Binary.Buffer(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/dim_country.parquet"))),
+				    Selected = Table.SelectColumns(Source, {"country_code", "iso3", "country_name", "is_world", "is_special_area", "is_morocco", "is_mirror_partner"}),
+				    Typed = Table.TransformColumnTypes(Selected, {{"country_code", Int64.Type}, {"iso3", type text}, {"country_name", type text}, {"is_world", type logical}, {"is_special_area", type logical}, {"is_morocco", type logical}, {"is_mirror_partner", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

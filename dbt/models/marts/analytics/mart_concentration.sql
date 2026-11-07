@@ -54,6 +54,7 @@ select
     i.flow_code,
     i.cmd_code,
     p.product_description,
+    coalesce(p.focus_label_fr, 'Tous produits') as scope_label,
     i.partner_count,
     i.total_value_usd,
     round(i.hhi, 1) as hhi,

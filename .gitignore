@@ -19,3 +19,7 @@ logs/
 
 # OS
 .DS_Store
+
+# Power BI Desktop local files
+powerbi/**/.pbi/localSettings.json
+powerbi/**/.pbi/cache.abf

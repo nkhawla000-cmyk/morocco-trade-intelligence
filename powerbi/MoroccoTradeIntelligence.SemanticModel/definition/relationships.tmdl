@@ -1,0 +1,27 @@
+relationship a6a138ed-d032-5775-8643-21d944a032f4
+	fromColumn: fct_trade.year
+	toColumn: dim_year.year
+
+relationship dea4761a-0eeb-5601-b0ba-88715b8d3e57
+	fromColumn: fct_trade.flow_code
+	toColumn: dim_flow.flow_code
+
+relationship 077ede40-e926-53b9-9817-d51b149e329b
+	fromColumn: fct_trade.partner_code
+	toColumn: dim_country.country_code
+
+relationship bf292050-4a17-5f35-9d9c-21bf90880b76
+	fromColumn: fct_trade.cmd_code
+	toColumn: dim_product.cmd_code
+
+relationship e70a8cb2-1354-57bc-810f-ee5acac6accc
+	fromColumn: mart_concentration.year
+	toColumn: dim_year.year
+
+relationship 926cec28-c8d6-58c3-888e-b9e85fb5fe05
+	fromColumn: mart_mirror_gaps.year
+	toColumn: dim_year.year
+
+relationship beb9641d-1fb5-5f01-8b44-958f6aeff773
+	fromColumn: mart_flow_anomalies.year
+	toColumn: dim_year.year

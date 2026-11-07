@@ -1,0 +1,87 @@
+table dim_product
+	lineageTag: 4e37cb8e-0903-53b8-abed-521b6b85e249
+
+	column cmd_code
+		dataType: string
+		lineageTag: 43ab1a06-19da-5017-a8d5-ce9cd21fd3fa
+		summarizeBy: none
+		sourceColumn: cmd_code
+
+		annotation SummarizationSetBy = User
+
+	column product_description
+		dataType: string
+		lineageTag: 70369a50-1426-511c-bc4f-9a7efd105486
+		summarizeBy: none
+		sourceColumn: product_description
+
+		annotation SummarizationSetBy = User
+
+	column product_level
+		dataType: string
+		lineageTag: 0f8d1b39-6a0b-53c4-95ab-05b85ee357f4
+		summarizeBy: none
+		sourceColumn: product_level
+
+		annotation SummarizationSetBy = User
+
+	column hs_chapter
+		dataType: string
+		lineageTag: ac1ac712-8b2d-5357-8e6e-f1fbe0b781a1
+		summarizeBy: none
+		sourceColumn: hs_chapter
+
+		annotation SummarizationSetBy = User
+
+	column hs_level
+		dataType: int64
+		formatString: 0
+		lineageTag: f302fb5d-aed0-5a88-ac5b-f9f8953da96e
+		summarizeBy: none
+		sourceColumn: hs_level
+
+		annotation SummarizationSetBy = User
+
+	column focus_group
+		dataType: string
+		lineageTag: 2ef211e2-be15-56e3-8131-feeef69634e7
+		summarizeBy: none
+		sourceColumn: focus_group
+
+		annotation SummarizationSetBy = User
+
+	column focus_label
+		dataType: string
+		lineageTag: c77ce236-8fc3-58cf-ba2b-e3e6bdded587
+		summarizeBy: none
+		sourceColumn: focus_label
+
+		annotation SummarizationSetBy = User
+
+	column focus_label_fr
+		dataType: string
+		lineageTag: a55ba200-2003-5e4f-adcd-6475cbb660f7
+		summarizeBy: none
+		sourceColumn: focus_label_fr
+
+		annotation SummarizationSetBy = User
+
+	column is_focus_product
+		dataType: boolean
+		lineageTag: f9df31e2-93e5-5811-85d2-45386a547343
+		summarizeBy: none
+		sourceColumn: is_focus_product
+
+		annotation SummarizationSetBy = User
+
+	partition dim_product = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(Binary.Buffer(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/dim_product.parquet"))),
+				    Selected = Table.SelectColumns(Source, {"cmd_code", "product_description", "product_level", "hs_chapter", "hs_level", "focus_group", "focus_label", "focus_label_fr", "is_focus_product"}),
+				    Typed = Table.TransformColumnTypes(Selected, {{"cmd_code", type text}, {"product_description", type text}, {"product_level", type text}, {"hs_chapter", type text}, {"hs_level", Int64.Type}, {"focus_group", type text}, {"focus_label", type text}, {"focus_label_fr", type text}, {"is_focus_product", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

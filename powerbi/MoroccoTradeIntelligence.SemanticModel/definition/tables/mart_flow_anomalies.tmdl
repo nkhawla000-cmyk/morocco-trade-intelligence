@@ -1,0 +1,118 @@
+table mart_flow_anomalies
+	lineageTag: 5f3fcb47-986d-5e6b-a9b2-600f8a523ee1
+
+	measure 'Anomalies détectées' = ```
+			COUNTROWS ( mart_flow_anomalies )
+			```
+		formatString: 0
+		lineageTag: ae203b8a-d647-5e64-a08b-64ec5b7dfaa4
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: 4d3256b6-85bc-54af-af56-59b7c14d308a
+		summarizeBy: none
+		sourceColumn: year
+
+		annotation SummarizationSetBy = User
+
+	column flow_code
+		dataType: string
+		lineageTag: 48564a3b-0eec-507d-bdab-aeacb435c57e
+		summarizeBy: none
+		sourceColumn: flow_code
+
+		annotation SummarizationSetBy = User
+
+	column partner_code
+		dataType: int64
+		formatString: 0
+		lineageTag: f5efba8e-9349-5f46-a5ac-4eb953eac56c
+		summarizeBy: none
+		sourceColumn: partner_code
+
+		annotation SummarizationSetBy = User
+
+	column partner_name
+		dataType: string
+		lineageTag: cd37d2e3-30ca-5e08-9051-2cb600d4801a
+		summarizeBy: none
+		sourceColumn: partner_name
+
+		annotation SummarizationSetBy = User
+
+	column previous_value_usd
+		dataType: double
+		formatString: #,0
+		lineageTag: 49140724-dbf9-5419-94b0-609938864621
+		summarizeBy: none
+		sourceColumn: previous_value_usd
+
+		annotation SummarizationSetBy = User
+
+	column trade_value_usd
+		dataType: double
+		formatString: #,0
+		lineageTag: 4dc95732-1851-50da-9e79-8ffd5a1347b3
+		summarizeBy: none
+		sourceColumn: trade_value_usd
+
+		annotation SummarizationSetBy = User
+
+	column change_ratio
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 00ac73f8-92dd-5755-95ac-db4960648340
+		summarizeBy: none
+		sourceColumn: change_ratio
+
+		annotation SummarizationSetBy = User
+
+	column typical_change_ratio
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 016751ce-e4fe-57f2-9845-ca7a0eedd124
+		summarizeBy: none
+		sourceColumn: typical_change_ratio
+
+		annotation SummarizationSetBy = User
+
+	column robust_z
+		dataType: double
+		formatString: 0.00
+		lineageTag: 15425eb7-6910-5ac4-901c-fd2c03ce7a3a
+		summarizeBy: none
+		sourceColumn: robust_z
+
+		annotation SummarizationSetBy = User
+
+	column partners_compared
+		dataType: int64
+		formatString: 0
+		lineageTag: b9caffd1-85aa-5cd8-85b2-b878d4e1a742
+		summarizeBy: none
+		sourceColumn: partners_compared
+
+		annotation SummarizationSetBy = User
+
+	column is_anomaly
+		dataType: boolean
+		lineageTag: 26330c2f-c944-5751-8004-cb07bf47841b
+		summarizeBy: none
+		sourceColumn: is_anomaly
+
+		annotation SummarizationSetBy = User
+
+	partition mart_flow_anomalies = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/mart_flow_anomalies.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"year", "flow_code", "partner_code", "partner_name", "previous_value_usd", "trade_value_usd", "change_ratio", "typical_change_ratio", "robust_z", "partners_compared", "is_anomaly"}),
+				    Typed = Table.TransformColumnTypes(Blanks, {{"year", Int64.Type}, {"flow_code", type text}, {"partner_code", Int64.Type}, {"partner_name", type text}, {"previous_value_usd", type number}, {"trade_value_usd", type number}, {"change_ratio", type number}, {"typical_change_ratio", type number}, {"robust_z", type number}, {"partners_compared", Int64.Type}, {"is_anomaly", type logical}}, "en-US"),
+				    Result = Table.SelectRows(Typed, each [is_anomaly] = true)
+				in
+				    Result
+
+	annotation PBI_ResultType = Table

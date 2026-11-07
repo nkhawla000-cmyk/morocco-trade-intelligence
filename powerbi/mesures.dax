@@ -1,0 +1,163 @@
+// Mesures DAX du rapport Morocco Trade Intelligence (générées par tools/build_powerbi.py)
+
+// Table : dim_year · format : 0
+Année affichée =
+    SELECTEDVALUE ( dim_year[year], MAX ( dim_year[year] ) )
+
+// Table : fct_trade · format : #,0
+Exportations automobiles (USD) =
+    CALCULATE (
+        SUM ( fct_trade[trade_value_usd] ),
+        fct_trade[reporter_code] = 504,
+        fct_trade[flow_code] = "X",
+        dim_product[focus_group] = "Automotive",
+        dim_country[is_world] = TRUE ()
+    )
+
+// Table : fct_trade · format : #,0
+Importations automobiles (USD) =
+    CALCULATE (
+        SUM ( fct_trade[trade_value_usd] ),
+        fct_trade[reporter_code] = 504,
+        fct_trade[flow_code] = "M",
+        dim_product[focus_group] = "Automotive",
+        dim_country[is_world] = TRUE ()
+    )
+
+// Table : mart_trade_overview · format : #,0
+Exportations (USD) =
+    SUM ( mart_trade_overview[exports_usd] )
+
+// Table : mart_trade_overview · format : #,0
+Importations (USD) =
+    SUM ( mart_trade_overview[imports_usd] )
+
+// Table : mart_trade_overview · format : #,0
+Solde commercial (USD) =
+    SUM ( mart_trade_overview[trade_balance_usd] )
+
+// Table : mart_trade_overview · format : 0
+Dernière année =
+    MAX ( mart_trade_overview[year] )
+
+// Table : mart_trade_overview · format : #,0
+Exportations, dernière année =
+    VAR LastYear = MAX ( mart_trade_overview[year] )
+    RETURN
+        CALCULATE ( [Exportations (USD)], mart_trade_overview[year] = LastYear )
+
+// Table : mart_trade_overview · format : #,0
+Importations, dernière année =
+    VAR LastYear = MAX ( mart_trade_overview[year] )
+    RETURN
+        CALCULATE ( [Importations (USD)], mart_trade_overview[year] = LastYear )
+
+// Table : mart_trade_overview · format : #,0
+Solde, dernière année =
+    [Exportations, dernière année] - [Importations, dernière année]
+
+// Table : mart_trade_overview · format : 0.0%
+Taux de couverture, dernière année =
+    DIVIDE ( [Exportations, dernière année], [Importations, dernière année] )
+
+// Table : mart_partner_shares · format : 0.0%
+Part des exportations (top 10) =
+    VAR SelectedYear = [Année affichée]
+    RETURN
+        CALCULATE (
+            SUM ( mart_partner_shares[share_of_world] ),
+            mart_partner_shares[year] = SelectedYear,
+            mart_partner_shares[flow_code] = "X",
+            mart_partner_shares[partner_rank] <= 10
+        )
+
+// Table : mart_partner_shares · format : 0.0%
+Part des importations (top 10) =
+    VAR SelectedYear = [Année affichée]
+    RETURN
+        CALCULATE (
+            SUM ( mart_partner_shares[share_of_world] ),
+            mart_partner_shares[year] = SelectedYear,
+            mart_partner_shares[flow_code] = "M",
+            mart_partner_shares[partner_rank] <= 10
+        )
+
+// Table : mart_partner_shares · format : 0.0%
+Part des 5 premiers clients =
+    VAR SelectedYear = [Année affichée]
+    RETURN
+        CALCULATE (
+            SUM ( mart_partner_shares[share_of_world] ),
+            mart_partner_shares[year] = SelectedYear,
+            mart_partner_shares[flow_code] = "X",
+            mart_partner_shares[partner_rank] <= 5
+        )
+
+// Table : mart_partner_shares · format : 0.0%
+Part des 5 premiers fournisseurs =
+    VAR SelectedYear = [Année affichée]
+    RETURN
+        CALCULATE (
+            SUM ( mart_partner_shares[share_of_world] ),
+            mart_partner_shares[year] = SelectedYear,
+            mart_partner_shares[flow_code] = "M",
+            mart_partner_shares[partner_rank] <= 5
+        )
+
+// Table : mart_chapter_structure · format : 0.0%
+Part des exportations par chapitre (top 10) =
+    VAR SelectedYear = [Année affichée]
+    RETURN
+        CALCULATE (
+            SUM ( mart_chapter_structure[share_of_chapters] ),
+            mart_chapter_structure[year] = SelectedYear,
+            mart_chapter_structure[flow_code] = "X",
+            mart_chapter_structure[chapter_rank] <= 10
+        )
+
+// Table : mart_chapter_structure · format : 0.0%
+Part des importations par chapitre (top 10) =
+    VAR SelectedYear = [Année affichée]
+    RETURN
+        CALCULATE (
+            SUM ( mart_chapter_structure[share_of_chapters] ),
+            mart_chapter_structure[year] = SelectedYear,
+            mart_chapter_structure[flow_code] = "M",
+            mart_chapter_structure[chapter_rank] <= 10
+        )
+
+// Table : mart_concentration · format : #,0
+HHI exportations =
+    CALCULATE ( AVERAGE ( mart_concentration[hhi] ), mart_concentration[flow_code] = "X" )
+
+// Table : mart_concentration · format : #,0
+HHI importations =
+    CALCULATE ( AVERAGE ( mart_concentration[hhi] ), mart_concentration[flow_code] = "M" )
+
+// Table : mart_mirror_gaps · format : 0
+Comparaisons miroir =
+    COUNTROWS ( mart_mirror_gaps )
+
+// Table : mart_mirror_gaps · format : 0
+Comparaisons à examiner =
+    CALCULATE ( COUNTROWS ( mart_mirror_gaps ), mart_mirror_gaps[needs_review] = TRUE () )
+
+// Table : mart_flow_anomalies · format : 0
+Anomalies détectées =
+    COUNTROWS ( mart_flow_anomalies )
+
+// Table : mart_partner_segments · format : 0.0%
+Part des exportations (moyenne) =
+    AVERAGE ( mart_partner_segments[export_share] )
+
+// Table : mart_partner_segments · format : 0.0%
+Croissance annuelle (moyenne) =
+    AVERAGE ( mart_partner_segments[growth_rate] )
+
+// Table : mart_partner_segments · format : #,0
+Commerce moyen (USD) =
+    SUM ( mart_partner_segments[exports_avg_usd] ) + SUM ( mart_partner_segments[imports_avg_usd] )
+
+// Table : mart_partner_segments · format : 0
+Partenaires segmentés =
+    COUNTROWS ( mart_partner_segments )
