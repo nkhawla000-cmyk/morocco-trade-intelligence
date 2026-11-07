@@ -1,0 +1,48 @@
+{
+  "generated_at": "2026-11-07T17:58:11+00:00",
+  "version": "0.1.0",
+  "mode": "online (UN Comtrade)",
+  "years": [
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "status": "success",
+  "extraction": {
+    "requests": 70,
+    "records_by_dataset": {
+      "products_world": 1343,
+      "partners_total": 2607,
+      "automotive_partners": 2936,
+      "mirror_partners": 202
+    },
+    "empty_requests": []
+  },
+  "bronze_rows": 7088,
+  "dbt": {
+    "available": true,
+    "nodes": 53,
+    "tests": 41,
+    "status_counts": {
+      "success": 12,
+      "pass": 41
+    },
+    "issues": []
+  },
+  "exports": {
+    "fct_trade": 7088,
+    "dim_country": 227,
+    "dim_product": 101,
+    "dim_flow": 2,
+    "dim_year": 7,
+    "mart_trade_overview": 7,
+    "mart_partner_shares": 2593,
+    "mart_chapter_structure": 1343,
+    "mart_concentration": 56,
+    "mart_mirror_gaps": 202
+  }
+}
