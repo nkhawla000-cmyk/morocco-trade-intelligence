@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T18:07:43+00:00",
+  "generated_at": "2026-11-07T18:41:15+00:00",
   "version": "0.1.0",
   "mode": "online (UN Comtrade)",
   "years": [
@@ -12,6 +12,7 @@
     2025
   ],
   "status": "success",
+  "failed_steps": [],
   "extraction": {
     "requests": 70,
     "records_by_dataset": {
@@ -25,11 +26,11 @@
   "bronze_rows": 7088,
   "dbt": {
     "available": true,
-    "nodes": 54,
-    "tests": 42,
+    "nodes": 58,
+    "tests": 45,
     "status_counts": {
-      "success": 12,
-      "pass": 41,
+      "success": 13,
+      "pass": 44,
       "warn": 1
     },
     "issues": [
@@ -38,6 +39,25 @@
         "status": "warn",
         "failures": 1
       }
+    ]
+  },
+  "segmentation": {
+    "status": "done",
+    "partners": 68,
+    "k": 5,
+    "silhouette": 0.336,
+    "silhouette_by_k": {
+      "3": 0.286,
+      "4": 0.319,
+      "5": 0.336,
+      "6": 0.315
+    },
+    "window": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023
     ]
   },
   "exports": {
@@ -50,6 +70,9 @@
     "mart_partner_shares": 2593,
     "mart_chapter_structure": 1343,
     "mart_concentration": 56,
-    "mart_mirror_gaps": 202
+    "mart_mirror_gaps": 202,
+    "mart_flow_anomalies": 732,
+    "mart_partner_segments": 68,
+    "mart_segment_profiles": 5
   }
 }

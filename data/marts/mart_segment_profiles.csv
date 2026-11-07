@@ -1,0 +1,6 @@
+segment_id,segment_label,partner_count,total_trade_avg_usd,median_export_share,median_growth_rate,median_automotive_export_share,example_partners
+1,"Grands partenaires — échanges équilibrés, orientés automobile",14,3348069240.431,0.36582140950255254,0.0883531820634611,0.29963582868715216,"Spain, France, China, USA"
+2,Petits partenaires — fournisseurs,22,373561647.27760005,0.18958917882895454,0.04706357931981109,0.02703437647765476,"Russian Federation, United Arab Emirates, Argentina, Canada"
+3,"Petits partenaires — fournisseurs, orientés automobile, en forte croissance",13,358192264.32800007,0.2516702935846574,0.11704888416118475,0.6229092588672636,"Romania, Poland, Egypt, Czechia"
+4,"Petits partenaires — débouchés à l'export, en forte croissance",13,252976714.57320002,0.9160104245233782,0.11995097746810357,0.010868356433883399,"Pakistan, Bangladesh, Mexico, Djibouti"
+5,"Petits partenaires — fournisseurs, en forte croissance",6,219463886.39,0.19034150044025877,0.5636585149221575,0.01579606765755618,"Kazakhstan, Bahrain, Lithuania, China, Hong Kong SAR"
