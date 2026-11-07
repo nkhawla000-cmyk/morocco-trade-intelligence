@@ -13,6 +13,9 @@ vars:
   morocco_code: 504
   # A partner's declaration differing by more than 20 % from Morocco's is flagged for review.
   mirror_gap_threshold: 0.20
+  # A yearly change of more than 50 % in Morocco's total exports or imports is flagged
+  # as a possible break in the series (change of method, coverage or valuation).
+  series_break_threshold: 0.50
 
 models:
   mti:

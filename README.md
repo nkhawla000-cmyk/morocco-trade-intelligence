@@ -34,9 +34,26 @@ flowchart LR
 ## Data quality
 
 - **Extraction checks:** HTTP status, response shape, API error message, unexpected reporter or year, and truncation (a call returning 500 rows fails instead of silently losing data).
-- **dbt data tests (about 40):** uniqueness and non-null keys, accepted values, referential integrity between the fact table and every dimension, no negative values, HHI within bounds, no conflicting duplicates in the source.
+- **dbt data tests (40+):** uniqueness and non-null keys, accepted values, referential integrity between the fact table and every dimension, no negative values, HHI within bounds, no conflicting duplicates in the source.
 - **Reconciliation:** the sum of HS chapters is compared with the reported total; gaps above 1 % raise a warning.
+- **Series-break check:** a yearly change above 50 % in Morocco's total exports or imports raises a warning.
 - **Pipeline report:** every refresh writes [`data/pipeline_report.json`](data/pipeline_report.json) with record counts per dataset, empty calls and dbt test results.
+
+## Data-quality finding: a break in Morocco's series from 2024
+
+The first run on real data (November 2026) showed that Morocco's totals reported in UN Comtrade jump in 2024:
+
+| Year | Exports (USD bn) | Imports (USD bn) |
+|---|---:|---:|
+| 2023 | 42.5 | 70.6 |
+| 2024 | 80.6 | 98.0 |
+| 2025 | 88.8 | 112.0 |
+
+- The API itself returns these values, as a single total row: the jump is not created by the pipeline.
+- Morocco's national statistics (Office des Changes) report 2024 exports of 456.3 bn MAD and imports of 761.3 bn MAD, roughly 46 and 76 bn USD at about 10 MAD per USD.
+- The mirror statistics point the same way: the share of partners flagged for review rises from about half in 2019–2023 to 25 of 28 comparisons in 2024.
+
+**Consequence:** values reported by Morocco for 2024 and 2025 should not be compared with earlier years without caution. The pipeline keeps the source values unchanged, flags the break (`possible_series_break` in `mart_trade_overview`, plus a dbt warning) and leaves the interpretation to the analyst. Partner shares within a given year remain usable.
 
 ## Run it
 

@@ -19,7 +19,7 @@ API UN Comtrade → fichiers JSON bruts → fichier bronze → staging dbt → m
 | Extraction | `src/mti/extract.py` | Une réponse = un fichier JSON. Le lot est « tout ou rien » : si un appel échoue, l'ancien jeu de données reste intact. |
 | Bronze | `src/mti/bronze.py` | Tous les enregistrements dans un seul fichier, avec des types fixes et des colonnes de traçabilité. |
 | Transformation | `dbt/models/` | SQL versionné et testé : nettoyage, modèle en étoile, indicateurs. |
-| Tests de données | `dbt/tests/` + fichiers `.yml` | Environ 40 contrôles exécutés à chaque construction. |
+| Tests de données | `dbt/tests/` + fichiers `.yml` | Plus de 40 contrôles exécutés à chaque construction. |
 | Export | `src/mti/export.py` | Tables en Parquet (modèle en étoile) et en CSV (indicateurs), prêtes pour Power BI. |
 | Orchestration | `run_pipeline.py` | Enchaîne les étapes et écrit un rapport d'exécution. |
 
@@ -92,14 +92,29 @@ python run_pipeline.py             # vraies données
 
 Le mode `--offline` utilise des réponses inventées (`src/mti/fake_api.py`). Il sert uniquement aux tests : ces chiffres ne doivent jamais être présentés comme des résultats.
 
-## 8. Limites à connaître
+## 8. Une découverte de qualité des données : la rupture de 2024
+
+Au premier lancement sur les vraies données, les exportations du Maroc passent de 42,5 milliards de dollars en 2023 à 80,6 milliards en 2024. Les importations passent de 70,6 à 98,0 milliards.
+
+**Ce qui a été vérifié :**
+- **L'API elle-même** renvoie 80,6 milliards de dollars pour 2024, sur une seule ligne de total. Le pipeline n'a donc ni doublé ni mal agrégé les données.
+- **Les chiffres nationaux** (Office des Changes) donnent 456,3 milliards de dirhams d'exportations en 2024, soit environ 46 milliards de dollars, et 761,3 milliards de dirhams d'importations, soit environ 76 milliards de dollars.
+- **Les statistiques miroirs** confirment l'anomalie : 25 comparaisons sur 28 sont « à examiner » en 2024, contre environ la moitié les années précédentes.
+
+**Ce que fait le pipeline :** il garde les valeurs de la source sans les modifier, signale la rupture (colonne `possible_series_break` et avertissement dbt) et la documente.
+
+**Conséquence pour l'analyse :** ne pas comparer 2024–2025 avec les années précédentes sans précaution. Les parts des partenaires au sein d'une même année restent exploitables.
+
+**En entretien, c'est votre meilleur exemple :** un contrôle automatique a détecté un problème réel dans une source officielle. Vous l'avez vérifié avec une seconde source, puis documenté sans corriger les données à la main.
+
+## 9. Limites à connaître
 
 - Données annuelles uniquement, en dollars courants (pas corrigées de l'inflation).
 - Les trois positions HS automobiles sont un indicateur, pas une définition complète du secteur.
 - L'API gratuite limite chaque appel à 500 lignes, ce qui impose un découpage fin.
 - Les données récentes (dernière année) peuvent être incomplètes ou révisées par la suite.
 
-## 9. Questions probables en entretien
+## 10. Questions probables en entretien
 
 **Pourquoi un modèle en étoile ?**
 Pour séparer les mesures (valeurs échangées) des axes d'analyse (pays, produit, flux, année). Les requêtes et les rapports Power BI sont plus simples et plus rapides.
@@ -122,7 +137,7 @@ DuckDB est une base analytique sans serveur, idéale pour un projet portable et 
 **Comment le pipeline est-il automatisé ?**
 GitHub Actions lance les tests à chaque modification du code, et le rafraîchissement des données chaque mois. L'étape suivante est l'orchestration avec Airflow.
 
-## 10. Prochaines étapes
+## 11. Prochaines étapes
 
 1. **v0.2** : orchestration Airflow dans Docker. Un DAG avec une tâche par étape, des relances et un suivi des exécutions.
 2. **v0.3** : rapport Power BI sur le modèle en étoile exporté.
