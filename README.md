@@ -98,7 +98,15 @@ The DAG `morocco_trade_intelligence` has one task per step: `extract → bronze 
 
 ## Power BI report
 
-Open [`powerbi/MoroccoTradeIntelligence.pbip`](powerbi) with Power BI Desktop and refresh: the report loads the latest tables from this repository. Six pages: overview, partners, products, automotive and concentration, data quality, segmentation. See [`powerbi/README.md`](powerbi/README.md).
+Six pages: overview, partners, products, automotive and concentration, data quality, segmentation.
+
+![Overview page](powerbi/screenshots/01_vue_ensemble.png)
+
+![Data quality page](powerbi/screenshots/05_qualite_donnees.png)
+
+- **Quick look:** [`powerbi/MoroccoTradeIntelligence.pbix`](powerbi/MoroccoTradeIntelligence.pbix), a snapshot saved in November 2026.
+- **Latest data:** open [`powerbi/MoroccoTradeIntelligence.pbip`](powerbi) with Power BI Desktop and refresh; the report loads the current tables from this repository.
+- All pages and instructions: [`powerbi/README.md`](powerbi/README.md).
 
 ## Data notes and limits
 

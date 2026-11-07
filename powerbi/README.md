@@ -4,6 +4,16 @@ Le rapport est fourni au format **Projet Power BI (.pbip)** : des fichiers texte
 
 Il charge directement les tables publiées dans [`data/marts`](../data/marts) sur GitHub. Une **actualisation** dans Power BI Desktop récupère donc toujours les données du dernier rafraîchissement mensuel.
 
+## Aperçu
+
+| | |
+|---|---|
+| ![Vue d'ensemble](screenshots/01_vue_ensemble.png) | ![Partenaires](screenshots/02_partenaires.png) |
+| ![Produits](screenshots/03_produits.png) | ![Automobile et concentration](screenshots/04_automobile_concentration.png) |
+| ![Qualité des données](screenshots/05_qualite_donnees.png) | ![Segmentation](screenshots/06_segmentation.png) |
+
+Le fichier [`MoroccoTradeIntelligence.pbix`](MoroccoTradeIntelligence.pbix) est un instantané enregistré en novembre 2026, à ouvrir directement. Pour les données les plus récentes, ouvrez le projet `.pbip` et actualisez.
+
 ## Les six pages
 
 | Page | Contenu | Tables utilisées |
@@ -29,7 +39,7 @@ Il charge directement les tables publiées dans [`data/marts`](../data/marts) su
 
 - **Fichier .pbix :** Fichier → Enregistrer sous → type « Fichiers Power BI (*.pbix) ».
 - **PDF de toutes les pages :** Fichier → Exporter → Exporter au format PDF.
-- **Captures pour le README :** une capture par page, déposée dans `powerbi/screenshots/`.
+- **Captures pour le README :** une capture par page, dans `powerbi/screenshots/`.
 
 ## Mesures DAX
 
