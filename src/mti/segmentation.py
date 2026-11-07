@@ -24,11 +24,11 @@ MIN_TRADE_USD = 100_000_000
 RANDOM_STATE = 42
 
 ASSIGNMENT_COLUMNS = [
-    "partner_code", "partner_name", "segment_id", "segment_label",
+    "partner_code", "partner_name", "segment_id", "segment_code", "segment_label",
     "exports_avg_usd", "imports_avg_usd", *FEATURES,
 ]
 PROFILE_COLUMNS = [
-    "segment_id", "segment_label", "partner_count", "total_trade_avg_usd",
+    "segment_id", "segment_code", "segment_label", "partner_count", "total_trade_avg_usd",
     "median_export_share", "median_growth_rate", "median_automotive_export_share",
     "example_partners",
 ]
@@ -163,6 +163,7 @@ def segment_partners(features: pd.DataFrame, k_range: range = range(3, 7)) -> Se
             }
         )
     profiles = pd.DataFrame(profiles)
+    profiles["segment_code"] = "S" + profiles["segment_id"].astype(str)
     profiles["segment_label"] = [
         describe_segment(row.total_trade_avg_usd, row.median_export_share,
                          row.median_growth_rate, row.median_automotive_export_share)
@@ -171,7 +172,7 @@ def segment_partners(features: pd.DataFrame, k_range: range = range(3, 7)) -> Se
     duplicated = profiles["segment_label"].duplicated(keep=False)
     profiles.loc[duplicated, "segment_label"] += " (segment " + profiles.loc[duplicated, "segment_id"].astype(str) + ")"
 
-    data = data.merge(profiles[["segment_id", "segment_label"]], on="segment_id")
+    data = data.merge(profiles[["segment_id", "segment_code", "segment_label"]], on="segment_id")
     assignments = data.sort_values(["segment_id", "total_avg_usd"], ascending=[True, False])[ASSIGNMENT_COLUMNS]
     summary = {
         "status": "done",
