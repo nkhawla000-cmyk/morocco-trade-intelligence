@@ -22,7 +22,7 @@ Le fichier [`MoroccoTradeIntelligence.pbix`](MoroccoTradeIntelligence.pbix) est 
 | 02 Partenaires | Top 10 des clients et des fournisseurs ; part des 5 premiers | `mart_partner_shares`, `dim_year` |
 | 03 Produits | Top 10 des chapitres SH exportés et importés | `mart_chapter_structure`, `dim_year` |
 | 04 Automobile et concentration | Exportations automobiles par produit ; indice HHI ; tableau de la dernière année | modèle en étoile (`fct_trade` + dimensions), `mart_concentration` |
-| 05 Qualité des données | Statistiques miroirs, rupture de série de 2024, anomalies par partenaire | `mart_mirror_gaps`, `mart_trade_overview`, `mart_flow_anomalies` |
+| 05 Qualité des données | Statistiques miroirs, rupture de série possible en 2024, anomalies par partenaire | `mart_mirror_gaps`, `mart_trade_overview`, `mart_flow_anomalies` |
 | 06 Segmentation | Nuage de points des partenaires par segment k-means ; profil des segments | `mart_partner_segments`, `mart_segment_profiles` |
 
 ## Ouvrir le rapport (Power BI Desktop, Windows)

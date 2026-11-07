@@ -103,7 +103,7 @@ Au premier lancement sur les vraies données, les exportations du Maroc passent 
 **Ce qui a été vérifié :**
 - **L'API elle-même** renvoie 80,6 milliards de dollars pour 2024, sur une seule ligne de total. Le pipeline n'a donc ni doublé ni mal agrégé les données.
 - **Les chiffres nationaux** (Office des Changes) donnent 456,3 milliards de dirhams d'exportations en 2024, soit environ 46 milliards de dollars, et 761,3 milliards de dirhams d'importations, soit environ 76 milliards de dollars.
-- **Les statistiques miroirs** confirment l'anomalie : 25 comparaisons sur 28 sont « à examiner » en 2024, contre environ la moitié les années précédentes.
+- **Les statistiques miroirs** vont dans le même sens : 25 comparaisons sur 28 sont « à examiner » en 2024, contre environ la moitié les années précédentes.
 
 **Ce que fait le pipeline :** il garde les valeurs de la source sans les modifier, signale la rupture (colonne `possible_series_break` et avertissement dbt) et la documente.
 

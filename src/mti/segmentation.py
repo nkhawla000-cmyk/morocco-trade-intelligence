@@ -7,7 +7,7 @@ Each partner is described by four features computed over a window of years:
   - automotive_export_share: share of cars, vehicle parts and wiring in exports
 
 The window defaults to 2019-2023 because Morocco's reported values show a
-series break from 2024 (see README). Features are standardised, k is chosen
+possible series break from 2024 (see README). Features are standardised, k is chosen
 by silhouette score and every segment receives a readable label.
 """
 
