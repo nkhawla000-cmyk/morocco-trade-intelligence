@@ -4,12 +4,13 @@ Ce guide explique le projet de bout en bout : ce qu'il fait, pourquoi chaque cho
 
 ## 1. Le projet en 30 secondes
 
-> « J'ai construit un pipeline de données qui collecte automatiquement les statistiques du commerce extérieur marocain auprès de l'API UN Comtrade, contrôle leur qualité, les organise en modèle en étoile avec dbt et DuckDB, puis calcule des indicateurs : balance commerciale, principaux partenaires, concentration des échanges (indice HHI) et écarts entre les déclarations du Maroc et celles de ses partenaires. Tout est testé automatiquement et s'exécute sur GitHub Actions. »
+> « J'ai construit un pipeline de données qui collecte automatiquement les statistiques du commerce extérieur marocain auprès de l'API UN Comtrade, contrôle leur qualité et les organise en modèle en étoile avec dbt et DuckDB. Il calcule ensuite des indicateurs (balance commerciale, principaux partenaires, concentration HHI, statistiques miroirs), détecte les variations anormales et segmente les pays partenaires avec un k-means. Le tout est orchestré par Airflow, testé automatiquement sur GitHub Actions et restitué dans un rapport Power BI de six pages. »
 
 ## 2. Le chemin des données
 
 ```
-API UN Comtrade → fichiers JSON bruts → fichier bronze → staging dbt → modèle en étoile → tables d'analyse → exports Parquet/CSV
+API UN Comtrade → JSON bruts → bronze → staging dbt → modèle en étoile → tables d'analyse et segmentation
+→ exports Parquet/CSV → rapport Power BI
 ```
 
 | Étape | Fichier | Ce qu'il faut retenir |
@@ -19,9 +20,12 @@ API UN Comtrade → fichiers JSON bruts → fichier bronze → staging dbt → m
 | Extraction | `src/mti/extract.py` | Une réponse = un fichier JSON. Le lot est « tout ou rien » : si un appel échoue, l'ancien jeu de données reste intact. |
 | Bronze | `src/mti/bronze.py` | Tous les enregistrements dans un seul fichier, avec des types fixes et des colonnes de traçabilité. |
 | Transformation | `dbt/models/` | SQL versionné et testé : nettoyage, modèle en étoile, indicateurs. |
-| Tests de données | `dbt/tests/` + fichiers `.yml` | Plus de 40 contrôles exécutés à chaque construction. |
+| Tests de données | `dbt/tests/` + fichiers `.yml` | Plus de 45 contrôles exécutés à chaque construction. |
+| Anomalies | `dbt/models/marts/analytics/mart_flow_anomalies.sql` | Score z robuste de la variation annuelle de chaque partenaire. |
+| Segmentation | `src/mti/segmentation.py` | k-means sur 4 indicateurs par partenaire, avec scikit-learn. |
 | Export | `src/mti/export.py` | Tables en Parquet (modèle en étoile) et en CSV (indicateurs), prêtes pour Power BI. |
-| Orchestration | `run_pipeline.py` | Enchaîne les étapes et écrit un rapport d'exécution. |
+| Orchestration | `run_pipeline.py`, `airflow/dags/mti_pipeline.py` | Six étapes nommées, lançables seules ; Airflow les enchaîne, une tâche par étape. |
+| Rapport | `powerbi/` | Projet Power BI généré par `tools/build_powerbi.py`, lu depuis GitHub. |
 
 ## 3. Les données UN Comtrade
 
@@ -107,14 +111,66 @@ Au premier lancement sur les vraies données, les exportations du Maroc passent 
 
 **En entretien, c'est votre meilleur exemple :** un contrôle automatique a détecté un problème réel dans une source officielle. Vous l'avez vérifié avec une seconde source, puis documenté sans corriger les données à la main.
 
-## 9. Limites à connaître
+## 9. Détection d'anomalies
+
+**Question :** quels partenaires ont une variation annuelle anormale par rapport aux autres partenaires la même année ?
+
+1. Pour chaque partenaire et chaque flux, on calcule la variation en logarithme : ln(valeur de l'année / valeur de l'année précédente). Le logarithme rend comparables une hausse et une baisse.
+2. On calcule, pour la même année et le même flux, la **médiane** des variations de tous les partenaires et leur **écart absolu médian** (MAD).
+3. **Score z robuste** = (variation − médiane) / (1,4826 × MAD). Le facteur 1,4826 rend le MAD comparable à un écart-type.
+4. Au-delà de 3,5 en valeur absolue, la variation est signalée. Seuls les partenaires d'au moins 50 millions de dollars l'année précédente sont évalués : les petits flux varient beaucoup sans raison significative.
+
+**Pourquoi la médiane plutôt que la moyenne ?** Parce qu'elle n'est pas tirée par les valeurs extrêmes qu'on cherche justement à détecter.
+
+**Pourquoi la rupture de 2024 n'est-elle pas signalée partout ?** Parce que chaque partenaire est comparé aux autres partenaires de la même année. Si tout le monde monte de 90 %, la médiane monte aussi, et seuls les écarts à ce mouvement général ressortent.
+
+## 10. Segmentation des partenaires (k-means)
+
+**Question :** quels groupes de pays partenaires se ressemblent ?
+
+Quatre indicateurs par partenaire, calculés sur 2019–2023, avant la rupture de série :
+- **taille** des échanges : logarithme de la moyenne exportations + importations ;
+- **part des exportations** : exportations ÷ échanges ; proche de 1 = débouché, proche de 0 = fournisseur ;
+- **croissance** : taux de croissance annuel moyen des échanges ;
+- **part automobile** : voitures, pièces et câblage dans les exportations vers ce pays.
+
+**Étapes :** les indicateurs sont standardisés (moyenne 0, écart-type 1) pour qu'aucun ne domine. On teste k de 3 à 6 et on garde le k au meilleur **score de silhouette**, qui mesure si chaque pays est plus proche de son groupe que des autres. Chaque segment reçoit ensuite un nom tiré de son profil médian (par exemple « Grands partenaires — échanges équilibrés, orientés automobile »).
+
+**Limites :** un k-means trouve toujours des groupes, même faibles. Le score de silhouette, publié dans le rapport d'exécution, indique leur netteté. La segmentation sert à décrire, pas à prédire.
+
+## 11. Orchestration avec Airflow
+
+- **DAG** `morocco_trade_intelligence` : six tâches (`extract → bronze → dbt → segment → export → report`), lancé le 7 de chaque mois.
+- **Chaque tâche** exécute `run_pipeline.py --steps <étape>` : on peut relancer une seule étape à la main, avec la même commande.
+- **Relances :** seule l'extraction est relancée automatiquement (3 fois, toutes les 10 minutes), car c'est la seule étape qui dépend d'un service extérieur.
+- **Docker :** l'image Airflow contient un environnement Python séparé pour le projet. dbt et les bibliothèques de données n'entrent donc pas en conflit avec celles d'Airflow.
+- **Test automatique :** à chaque modification du pipeline, GitHub Actions construit l'image et exécute le DAG complet sur données synthétiques.
+
+**Lancer Airflow sur votre Dell :** installez Docker Desktop, puis dans le dossier du projet :
+
+```bash
+docker compose up --build
+docker compose exec airflow cat /opt/airflow/standalone_admin_password.txt
+```
+
+Ouvrez http://localhost:8080 avec l'utilisateur `admin` et ce mot de passe, puis activez et lancez le DAG.
+
+## 12. Le rapport Power BI
+
+Six pages : vue d'ensemble, partenaires, produits, automobile et concentration, qualité des données, segmentation. Le mode d'emploi est dans `powerbi/README.md`.
+
+- Le rapport lit les tables publiées sur GitHub : une actualisation charge les données du dernier rafraîchissement mensuel.
+- Le modèle relie la table de faits à quatre dimensions (modèle en étoile). Les tables d'analyse sont reliées à la dimension année quand une page les filtre par année.
+- Les mesures DAX sont dans `powerbi/mesures.dax`. Exemple : `Année affichée` renvoie l'année choisie dans le segment, ou la dernière année disponible si rien n'est choisi.
+
+## 13. Limites à connaître
 
 - Données annuelles uniquement, en dollars courants (pas corrigées de l'inflation).
 - Les trois positions HS automobiles sont un indicateur, pas une définition complète du secteur.
 - L'API gratuite limite chaque appel à 500 lignes, ce qui impose un découpage fin.
 - Les données récentes (dernière année) peuvent être incomplètes ou révisées par la suite.
 
-## 10. Questions probables en entretien
+## 14. Questions probables en entretien
 
 **Pourquoi un modèle en étoile ?**
 Pour séparer les mesures (valeurs échangées) des axes d'analyse (pays, produit, flux, année). Les requêtes et les rapports Power BI sont plus simples et plus rapides.
@@ -135,10 +191,19 @@ Une concentration modérée. C'est l'équivalent de cinq partenaires de même po
 DuckDB est une base analytique sans serveur, idéale pour un projet portable et des tests en intégration continue. dbt permet de passer à PostgreSQL en changeant seulement le profil de connexion.
 
 **Comment le pipeline est-il automatisé ?**
-GitHub Actions lance les tests à chaque modification du code, et le rafraîchissement des données chaque mois. L'étape suivante est l'orchestration avec Airflow.
+GitHub Actions lance les tests à chaque modification du code et rafraîchit les données chaque mois. Airflow orchestre les mêmes étapes en local, une tâche par étape, avec des relances sur l'extraction.
 
-## 11. Prochaines étapes
+**Pourquoi un score z robuste pour les anomalies ?**
+La moyenne et l'écart-type sont déformés par les valeurs extrêmes qu'on cherche à repérer. La médiane et le MAD ne le sont pas.
 
-1. **v0.2** : orchestration Airflow dans Docker. Un DAG avec une tâche par étape, des relances et un suivi des exécutions.
-2. **v0.3** : rapport Power BI sur le modèle en étoile exporté.
-3. **v0.4** : détection d'anomalies sur les flux et segmentation des partenaires.
+**Comment avez-vous choisi le nombre de segments ?**
+Avec le score de silhouette, en testant k de 3 à 6. Les indicateurs sont standardisés avant le k-means, sinon la taille des échanges dominerait.
+
+**Pourquoi la segmentation s'arrête-t-elle en 2023 ?**
+À cause de la rupture de série de 2024 : les valeurs déclarées par le Maroc changent de niveau, ce qui fausserait la croissance.
+
+## 15. Pistes d'amélioration
+
+1. Charger l'entrepôt dans PostgreSQL en plus de DuckDB (profil dbt supplémentaire).
+2. Passer aux données mensuelles pour suivre la conjoncture.
+3. Publier le rapport Power BI dans le service Power BI, avec actualisation planifiée.
