@@ -47,7 +47,7 @@ flowchart LR
 - **Series-break check:** a yearly change above 50 % in Morocco's total exports or imports raises a warning.
 - **Pipeline report:** every refresh writes [`data/pipeline_report.json`](data/pipeline_report.json) with record counts per dataset, empty calls, dbt test results and the segmentation summary.
 
-## Data-quality finding: a break in Morocco's series from 2024
+## Data-quality finding: a possible break in Morocco's series from 2024
 
 The first run on real data (November 2026) showed that Morocco's totals reported in UN Comtrade jump in 2024:
 
@@ -60,6 +60,8 @@ The first run on real data (November 2026) showed that Morocco's totals reported
 - The API itself returns these values, as a single total row: the jump is not created by the pipeline.
 - Morocco's national statistics (Office des Changes) report 2024 exports of 456.3 bn MAD and imports of 761.3 bn MAD, roughly 46 and 76 bn USD at about 10 MAD per USD.
 - The mirror statistics point the same way: the share of partners flagged for review rises from about half in 2019–2023 to 25 of 28 comparisons in 2024.
+
+**What remains to be checked:** the gap may come from a change in coverage (for example free zones or goods for processing), in valuation or in compilation method; the pipeline does not decide which. Unit and scope were checked as far as public sources allow: both figures are annual merchandise exports.
 
 **Consequence:** values reported by Morocco for 2024 and 2025 should not be compared with earlier years without caution. The pipeline keeps the source values unchanged, flags the break (`possible_series_break` in `mart_trade_overview`, plus a dbt warning) and leaves the interpretation to the analyst. Partner shares within a given year remain usable, and the segmentation uses 2019–2023 only.
 

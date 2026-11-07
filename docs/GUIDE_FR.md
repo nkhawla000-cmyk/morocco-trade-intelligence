@@ -96,7 +96,7 @@ python run_pipeline.py             # vraies données
 
 Le mode `--offline` utilise des réponses inventées (`src/mti/fake_api.py`). Il sert uniquement aux tests : ces chiffres ne doivent jamais être présentés comme des résultats.
 
-## 8. Une découverte de qualité des données : la rupture de 2024
+## 8. Une découverte de qualité des données : une rupture possible en 2024
 
 Au premier lancement sur les vraies données, les exportations du Maroc passent de 42,5 milliards de dollars en 2023 à 80,6 milliards en 2024. Les importations passent de 70,6 à 98,0 milliards.
 
@@ -109,7 +109,9 @@ Au premier lancement sur les vraies données, les exportations du Maroc passent 
 
 **Conséquence pour l'analyse :** ne pas comparer 2024–2025 avec les années précédentes sans précaution. Les parts des partenaires au sein d'une même année restent exploitables.
 
-**En entretien, c'est votre meilleur exemple :** un contrôle automatique a détecté un problème réel dans une source officielle. Vous l'avez vérifié avec une seconde source, puis documenté sans corriger les données à la main.
+**Ce qu'on ne sait pas encore :** l'origine de l'écart. Il peut venir d'un changement de périmètre (zones franches, trafic de perfectionnement), de valorisation ou de méthode de compilation. On parle donc de « rupture possible », pas de rupture démontrée.
+
+**En entretien, c'est votre meilleur exemple :** un contrôle automatique a repéré un écart important dans une source officielle. Vous l'avez comparé à une seconde source (l'Office des Changes, qui n'a rien « confirmé » : vous avez comparé ses chiffres publiés), puis documenté sans corriger les données à la main et sans conclure au-delà des preuves.
 
 ## 9. Détection d'anomalies
 
