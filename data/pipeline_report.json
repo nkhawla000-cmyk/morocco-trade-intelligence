@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T17:58:11+00:00",
+  "generated_at": "2026-11-07T18:07:43+00:00",
   "version": "0.1.0",
   "mode": "online (UN Comtrade)",
   "years": [
@@ -25,13 +25,20 @@
   "bronze_rows": 7088,
   "dbt": {
     "available": true,
-    "nodes": 53,
-    "tests": 41,
+    "nodes": 54,
+    "tests": 42,
     "status_counts": {
       "success": 12,
-      "pass": 41
+      "pass": 41,
+      "warn": 1
     },
-    "issues": []
+    "issues": [
+      {
+        "node": "test.mti.assert_no_series_break",
+        "status": "warn",
+        "failures": 1
+      }
+    ]
   },
   "exports": {
     "fct_trade": 7088,
