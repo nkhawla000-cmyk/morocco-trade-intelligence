@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T18:41:15+00:00",
+  "generated_at": "2026-11-07T20:57:01+00:00",
   "version": "0.1.0",
   "mode": "online (UN Comtrade)",
   "years": [
@@ -29,8 +29,8 @@
     "nodes": 58,
     "tests": 45,
     "status_counts": {
-      "success": 13,
       "pass": 44,
+      "success": 13,
       "warn": 1
     },
     "issues": [
