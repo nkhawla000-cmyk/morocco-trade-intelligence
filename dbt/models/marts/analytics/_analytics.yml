@@ -31,3 +31,17 @@ models:
     columns:
       - name: needs_review
         data_tests: [not_null]
+
+  - name: mart_flow_anomalies
+    description: >
+      Year-on-year change of Morocco's trade with each partner, scored against all
+      partners of the same year and flow (robust z-score, median and MAD).
+    columns:
+      - name: partner_code
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_country')
+              field: country_code
+      - name: is_anomaly
+        data_tests: [not_null]

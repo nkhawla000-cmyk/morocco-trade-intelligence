@@ -1,0 +1,19 @@
+# Local Airflow for the Morocco Trade Intelligence pipeline.
+#   docker compose up --build    then open http://localhost:8080 (user: admin)
+#   password: docker compose exec airflow cat /opt/airflow/standalone_admin_password.txt
+services:
+  airflow:
+    build:
+      context: .
+      dockerfile: airflow/Dockerfile
+    image: mti-airflow:local
+    command: standalone
+    user: "${AIRFLOW_UID:-50000}:0"
+    ports:
+      - "8080:8080"
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      MTI_PROJECT_DIR: /opt/mti
+    volumes:
+      - ./:/opt/mti
+      - ./airflow/dags:/opt/airflow/dags

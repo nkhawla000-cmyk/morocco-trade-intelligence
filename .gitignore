@@ -9,6 +9,7 @@ data/raw/
 data/raw_incoming/
 data/bronze/
 data/warehouse/
+data/state/
 build/
 
 # dbt

@@ -1,0 +1,36 @@
+name: Airflow
+
+# Builds the Airflow image and runs the whole DAG once on synthetic data.
+
+on:
+  push:
+    paths:
+      - "airflow/**"
+      - "docker-compose.yml"
+      - "run_pipeline.py"
+      - "requirements.txt"
+      - "src/**"
+      - "dbt/**"
+      - ".github/workflows/airflow.yml"
+  workflow_dispatch:
+
+jobs:
+  dag-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the Airflow image
+        run: docker compose build
+
+      - name: Run the DAG once on synthetic data
+        run: |
+          export AIRFLOW_UID=$(id -u)
+          docker compose run --rm airflow bash -c \
+            "airflow db migrate > /dev/null && airflow dags test morocco_trade_intelligence 2026-11-01 --conf '{\"offline\": true, \"years\": \"2019-2025\"}'"
+
+      - name: Check the pipeline report
+        run: |
+          cat build/offline/pipeline_report.json
+          python3 -c "import json, sys; r = json.load(open('build/offline/pipeline_report.json')); sys.exit(0 if r['status'] == 'success' else 1)"

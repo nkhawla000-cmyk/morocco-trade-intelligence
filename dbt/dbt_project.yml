@@ -16,6 +16,10 @@ vars:
   # A yearly change of more than 50 % in Morocco's total exports or imports is flagged
   # as a possible break in the series (change of method, coverage or valuation).
   series_break_threshold: 0.50
+  # Anomaly detection on partner flows: robust z-score above 3.5, for partners
+  # worth at least 50 million USD the previous year.
+  anomaly_z_threshold: 3.5
+  anomaly_min_value_usd: 50000000
 
 models:
   mti:

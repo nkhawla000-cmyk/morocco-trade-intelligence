@@ -16,6 +16,9 @@ EXPORTS = {
     "mart_chapter_structure": "csv",
     "mart_concentration": "csv",
     "mart_mirror_gaps": "csv",
+    "mart_flow_anomalies": "csv",
+    "mart_partner_segments": "csv",
+    "mart_segment_profiles": "csv",
 }
 
 
