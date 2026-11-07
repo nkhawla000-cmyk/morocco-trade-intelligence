@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Pipeline working files (raw answers, bronze, warehouse, offline runs)
+data/raw/
+data/raw_incoming/
+data/bronze/
+data/warehouse/
+build/
+
+# dbt
+dbt/target/
+dbt/logs/
+logs/
+
+# OS
+.DS_Store

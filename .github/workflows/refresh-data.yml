@@ -1,0 +1,66 @@
+name: Refresh data
+
+# Downloads real UN Comtrade data, rebuilds the warehouse, runs the data tests
+# and commits the exported tables and the pipeline report.
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "Years to load, e.g. 2019-2025"
+        required: false
+        default: "2019-2025"
+  schedule:
+    - cron: "17 4 7 * *" # 7th of each month, 04:17 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline on UN Comtrade data
+        run: python run_pipeline.py --years "${{ github.event.inputs.years || '2019-2025' }}"
+
+      - name: Keep raw answers and warehouse as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comtrade-raw-and-warehouse
+          path: |
+            data/raw
+            data/warehouse/mti.duckdb
+            dbt/target/run_results.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Commit exported tables and report
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/pipeline_report.json 2>/dev/null || true
+          git add data/marts 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No data change to commit."
+          else
+            git commit -m "Refresh UN Comtrade data (${{ job.status }})"
+            git pull --rebase
+            git push
+          fi

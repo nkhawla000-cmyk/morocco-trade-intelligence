@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: stg_comtrade__trade_flows
+    description: Typed and deduplicated UN Comtrade records (annual, HS).
+    columns:
+      - name: year
+        data_tests: [not_null]
+      - name: reporter_code
+        data_tests: [not_null]
+      - name: partner_code
+        data_tests: [not_null]
+      - name: flow_code
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ["X", "M"]
+      - name: cmd_code
+        data_tests: [not_null]
+      - name: trade_value_usd
+        data_tests: [not_null]

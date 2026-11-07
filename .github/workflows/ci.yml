@@ -1,0 +1,33 @@
+name: CI
+
+# Runs on every push: unit tests, then the full pipeline on synthetic API
+# answers (no network), including every dbt model and data test.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Unit tests
+        run: pytest -q
+
+      - name: Pipeline on synthetic data (dbt build)
+        run: python run_pipeline.py --offline
+
+      - name: Pipeline report
+        if: always()
+        run: cat build/offline/pipeline_report.json || true

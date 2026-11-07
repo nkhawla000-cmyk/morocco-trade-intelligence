@@ -1,0 +1,8 @@
+mti:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      # MTI_DATA_DIR is set by run_pipeline.py; the default works when dbt is run from the repository root.
+      path: "{{ env_var('MTI_DATA_DIR', 'data') }}/warehouse/mti.duckdb"
+      threads: 4

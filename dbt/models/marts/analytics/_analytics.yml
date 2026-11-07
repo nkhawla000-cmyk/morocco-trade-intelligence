@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: mart_trade_overview
+    description: Exports, imports, balance and coverage ratio of Morocco with the world, by year.
+    columns:
+      - name: year
+        data_tests: [unique, not_null]
+
+  - name: mart_partner_shares
+    description: Morocco's trade by partner with share of the world total and rank.
+    columns:
+      - name: partner_code
+        data_tests: [not_null]
+
+  - name: mart_chapter_structure
+    description: Morocco's trade with the world by HS chapter, with share, rank and yearly growth.
+
+  - name: mart_concentration
+    description: >
+      Partner concentration (HHI, top partner, top-5 share) for total trade and the
+      automotive focus headings.
+    columns:
+      - name: concentration_level
+        data_tests:
+          - accepted_values:
+              values: ["Low", "Moderate", "High"]
+
+  - name: mart_mirror_gaps
+    description: Morocco's declarations compared with its partners' mirror declarations.
+    columns:
+      - name: needs_review
+        data_tests: [not_null]

@@ -1,0 +1,21 @@
+version: 2
+
+sources:
+  - name: comtrade
+    description: >
+      UN Comtrade annual trade records (HS classification) written by the Python
+      bronze step as JSON Lines. One file per table, read directly by DuckDB.
+    meta:
+      external_location: "read_json_auto('{{ env_var('MTI_DATA_DIR', 'data') }}/bronze/{name}.jsonl', format='newline_delimited')"
+    tables:
+      - name: comtrade_records
+        description: One row per API record, with lineage columns prefixed by "_".
+        columns:
+          - name: reporterCode
+            data_tests:
+              - not_null
+          - name: partnerCode
+            data_tests:
+              - not_null
+          - name: primaryValue
+            description: Trade value in US dollars (FOB for exports, CIF for imports in most cases).

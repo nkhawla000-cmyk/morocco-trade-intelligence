@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: dim_country
+    description: Countries and areas seen as reporter or partner, with Comtrade pseudo-areas flagged.
+    columns:
+      - name: country_code
+        data_tests: [unique, not_null]
+
+  - name: dim_product
+    description: Product codes (TOTAL, HS chapters, HS headings) and the automotive focus list.
+    columns:
+      - name: cmd_code
+        data_tests: [unique, not_null]
+      - name: product_level
+        data_tests:
+          - accepted_values:
+              values: ["Total", "HS2 chapter", "HS4 heading", "Other"]
+
+  - name: dim_flow
+    description: Trade flows (X = exports, M = imports).
+    columns:
+      - name: flow_code
+        data_tests: [unique, not_null]
+
+  - name: dim_year
+    description: Years present in the data.
+    columns:
+      - name: year
+        data_tests: [unique, not_null]
+
+  - name: fct_trade
+    description: >
+      Trade values in US dollars. Grain - reporter x partner x flow x year x product code.
+    columns:
+      - name: trade_key
+        data_tests: [unique, not_null]
+      - name: year
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_year')
+              field: year
+      - name: reporter_code
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_country')
+              field: country_code
+      - name: partner_code
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_country')
+              field: country_code
+      - name: flow_code
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_flow')
+              field: flow_code
+      - name: cmd_code
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: cmd_code
+      - name: trade_value_usd
+        data_tests: [not_null]

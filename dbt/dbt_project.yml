@@ -1,0 +1,30 @@
+name: mti
+version: "0.1.0"
+config-version: 2
+profile: mti
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "logs"]
+
+vars:
+  morocco_code: 504
+  # A partner's declaration differing by more than 20 % from Morocco's is flagged for review.
+  mirror_gap_threshold: 0.20
+
+models:
+  mti:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table
+
+seeds:
+  mti:
+    hs_focus_products:
+      +column_types:
+        cmd_code: varchar
+        focus_group: varchar
+        focus_label: varchar
