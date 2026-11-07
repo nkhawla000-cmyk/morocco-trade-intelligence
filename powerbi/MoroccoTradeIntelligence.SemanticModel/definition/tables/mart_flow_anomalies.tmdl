@@ -103,6 +103,14 @@ table mart_flow_anomalies
 
 		annotation SummarizationSetBy = User
 
+	column flow_label
+		dataType: string
+		lineageTag: 4ba7a65b-9b78-56a3-a95c-945d4f6d7aef
+		summarizeBy: none
+		sourceColumn: flow_label
+
+		annotation SummarizationSetBy = User
+
 	partition mart_flow_anomalies = m
 		mode: import
 		source =
@@ -111,7 +119,9 @@ table mart_flow_anomalies
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
 				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"year", "flow_code", "partner_code", "partner_name", "previous_value_usd", "trade_value_usd", "change_ratio", "typical_change_ratio", "robust_z", "partners_compared", "is_anomaly"}),
 				    Typed = Table.TransformColumnTypes(Blanks, {{"year", Int64.Type}, {"flow_code", type text}, {"partner_code", Int64.Type}, {"partner_name", type text}, {"previous_value_usd", type number}, {"trade_value_usd", type number}, {"change_ratio", type number}, {"typical_change_ratio", type number}, {"robust_z", type number}, {"partners_compared", Int64.Type}, {"is_anomaly", type logical}}, "en-US"),
-				    Result = Table.SelectRows(Typed, each [is_anomaly] = true)
+				    Derived1 = Table.AddColumn(Typed, "flow_label", each if [flow_code] = "X" then "Exportations" else "Importations", type text),
+				    Prepared = Derived1,
+				    Result = Table.SelectRows(Prepared, each [is_anomaly] = true)
 				in
 				    Result
 

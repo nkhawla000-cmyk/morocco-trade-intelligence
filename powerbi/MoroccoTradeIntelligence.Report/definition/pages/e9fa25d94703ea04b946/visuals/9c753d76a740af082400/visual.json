@@ -23,11 +23,11 @@
                       "Entity": "mart_trade_overview"
                     }
                   },
-                  "Property": "Solde, dernière année"
+                  "Property": "Solde commercial"
                 }
               },
-              "queryRef": "mart_trade_overview.Solde, dernière année",
-              "nativeQueryRef": "Solde, dernière année"
+              "queryRef": "mart_trade_overview.Solde commercial",
+              "nativeQueryRef": "Solde commercial"
             }
           ]
         }

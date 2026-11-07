@@ -23,11 +23,11 @@
                       "Entity": "mart_trade_overview"
                     }
                   },
-                  "Property": "Exportations, dernière année"
+                  "Property": "Exportations"
                 }
               },
-              "queryRef": "mart_trade_overview.Exportations, dernière année",
-              "nativeQueryRef": "Exportations, dernière année"
+              "queryRef": "mart_trade_overview.Exportations",
+              "nativeQueryRef": "Exportations"
             }
           ]
         }

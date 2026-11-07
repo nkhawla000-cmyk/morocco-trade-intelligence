@@ -91,6 +91,13 @@
                   }
                 }
               }
+            },
+            "showAxisTitle": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
             }
           }
         }
@@ -115,6 +122,13 @@
                   }
                 }
               }
+            },
+            "showAxisTitle": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
             }
           }
         }
@@ -123,6 +137,13 @@
         {
           "properties": {
             "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "showTitle": {
               "expr": {
                 "Literal": {
                   "Value": "false"

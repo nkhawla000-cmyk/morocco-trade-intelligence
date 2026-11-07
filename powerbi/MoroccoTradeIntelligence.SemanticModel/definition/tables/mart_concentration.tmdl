@@ -124,6 +124,22 @@ table mart_concentration
 
 		annotation SummarizationSetBy = User
 
+	column flow_label
+		dataType: string
+		lineageTag: f22a76d6-c152-5f1f-85b7-f4e5609ad9ea
+		summarizeBy: none
+		sourceColumn: flow_label
+
+		annotation SummarizationSetBy = User
+
+	column concentration_label
+		dataType: string
+		lineageTag: f1287ba1-907a-597e-9587-db5fb2d6a83d
+		summarizeBy: none
+		sourceColumn: concentration_label
+
+		annotation SummarizationSetBy = User
+
 	partition mart_concentration = m
 		mode: import
 		source =
@@ -131,8 +147,11 @@ table mart_concentration
 				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/mart_concentration.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
 				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"year", "flow_code", "cmd_code", "product_description", "scope_label", "partner_count", "total_value_usd", "hhi", "concentration_level", "top_partner_code", "top_partner_name", "top_partner_share", "top5_share"}),
-				    Typed = Table.TransformColumnTypes(Blanks, {{"year", Int64.Type}, {"flow_code", type text}, {"cmd_code", type text}, {"product_description", type text}, {"scope_label", type text}, {"partner_count", Int64.Type}, {"total_value_usd", type number}, {"hhi", type number}, {"concentration_level", type text}, {"top_partner_code", Int64.Type}, {"top_partner_name", type text}, {"top_partner_share", type number}, {"top5_share", type number}}, "en-US")
+				    Typed = Table.TransformColumnTypes(Blanks, {{"year", Int64.Type}, {"flow_code", type text}, {"cmd_code", type text}, {"product_description", type text}, {"scope_label", type text}, {"partner_count", Int64.Type}, {"total_value_usd", type number}, {"hhi", type number}, {"concentration_level", type text}, {"top_partner_code", Int64.Type}, {"top_partner_name", type text}, {"top_partner_share", type number}, {"top5_share", type number}}, "en-US"),
+				    Derived1 = Table.AddColumn(Typed, "flow_label", each if [flow_code] = "X" then "Exportations" else "Importations", type text),
+				    Derived2 = Table.AddColumn(Derived1, "concentration_label", each if [concentration_level] = "Low" then "Faible" else if [concentration_level] = "Moderate" then "Modérée" else "Élevée", type text),
+				    Prepared = Derived2
 				in
-				    Typed
+				    Prepared
 
 	annotation PBI_ResultType = Table

@@ -111,8 +111,9 @@ table mart_chapter_structure
 				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/mart_chapter_structure.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
 				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"year", "flow_code", "hs_chapter", "product_description", "chapter_label", "trade_value_usd", "share_of_chapters", "chapter_rank", "growth_vs_previous_year"}),
-				    Typed = Table.TransformColumnTypes(Blanks, {{"year", Int64.Type}, {"flow_code", type text}, {"hs_chapter", type text}, {"product_description", type text}, {"chapter_label", type text}, {"trade_value_usd", type number}, {"share_of_chapters", type number}, {"chapter_rank", Int64.Type}, {"growth_vs_previous_year", type number}}, "en-US")
+				    Typed = Table.TransformColumnTypes(Blanks, {{"year", Int64.Type}, {"flow_code", type text}, {"hs_chapter", type text}, {"product_description", type text}, {"chapter_label", type text}, {"trade_value_usd", type number}, {"share_of_chapters", type number}, {"chapter_rank", Int64.Type}, {"growth_vs_previous_year", type number}}, "en-US"),
+				    Prepared = Typed
 				in
-				    Typed
+				    Prepared
 
 	annotation PBI_ResultType = Table

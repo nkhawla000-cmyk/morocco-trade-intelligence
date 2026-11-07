@@ -51,6 +51,14 @@ table mart_partner_segments
 
 		annotation SummarizationSetBy = User
 
+	column segment_code
+		dataType: string
+		lineageTag: 638d210a-15d9-5cb4-b961-973f3b2c9354
+		summarizeBy: none
+		sourceColumn: segment_code
+
+		annotation SummarizationSetBy = User
+
 	column segment_label
 		dataType: string
 		lineageTag: 8e454547-c4ed-5e6e-a3cb-5813d3471456
@@ -119,9 +127,10 @@ table mart_partner_segments
 				let
 				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/mart_partner_segments.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
-				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"partner_code", "partner_name", "segment_id", "segment_label", "exports_avg_usd", "imports_avg_usd", "log10_trade_usd", "export_share", "growth_rate", "automotive_export_share"}),
-				    Typed = Table.TransformColumnTypes(Blanks, {{"partner_code", Int64.Type}, {"partner_name", type text}, {"segment_id", Int64.Type}, {"segment_label", type text}, {"exports_avg_usd", type number}, {"imports_avg_usd", type number}, {"log10_trade_usd", type number}, {"export_share", type number}, {"growth_rate", type number}, {"automotive_export_share", type number}}, "en-US")
+				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"partner_code", "partner_name", "segment_id", "segment_code", "segment_label", "exports_avg_usd", "imports_avg_usd", "log10_trade_usd", "export_share", "growth_rate", "automotive_export_share"}),
+				    Typed = Table.TransformColumnTypes(Blanks, {{"partner_code", Int64.Type}, {"partner_name", type text}, {"segment_id", Int64.Type}, {"segment_code", type text}, {"segment_label", type text}, {"exports_avg_usd", type number}, {"imports_avg_usd", type number}, {"log10_trade_usd", type number}, {"export_share", type number}, {"growth_rate", type number}, {"automotive_export_share", type number}}, "en-US"),
+				    Prepared = Typed
 				in
-				    Typed
+				    Prepared
 
 	annotation PBI_ResultType = Table

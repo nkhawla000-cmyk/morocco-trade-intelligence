@@ -112,6 +112,22 @@ table mart_concentration_latest
 
 		annotation SummarizationSetBy = User
 
+	column flow_label
+		dataType: string
+		lineageTag: c9d52055-ec0f-5b02-9372-ec3e4c09efa2
+		summarizeBy: none
+		sourceColumn: flow_label
+
+		annotation SummarizationSetBy = User
+
+	column concentration_label
+		dataType: string
+		lineageTag: 5697ef12-d378-5120-ba32-78e310821e64
+		summarizeBy: none
+		sourceColumn: concentration_label
+
+		annotation SummarizationSetBy = User
+
 	partition mart_concentration_latest = m
 		mode: import
 		source =
@@ -120,7 +136,10 @@ table mart_concentration_latest
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
 				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"year", "flow_code", "cmd_code", "product_description", "scope_label", "partner_count", "total_value_usd", "hhi", "concentration_level", "top_partner_code", "top_partner_name", "top_partner_share", "top5_share"}),
 				    Typed = Table.TransformColumnTypes(Blanks, {{"year", Int64.Type}, {"flow_code", type text}, {"cmd_code", type text}, {"product_description", type text}, {"scope_label", type text}, {"partner_count", Int64.Type}, {"total_value_usd", type number}, {"hhi", type number}, {"concentration_level", type text}, {"top_partner_code", Int64.Type}, {"top_partner_name", type text}, {"top_partner_share", type number}, {"top5_share", type number}}, "en-US"),
-				    Result = Table.SelectRows(Typed, each [year] = List.Max(Typed[year]))
+				    Derived1 = Table.AddColumn(Typed, "flow_label", each if [flow_code] = "X" then "Exportations" else "Importations", type text),
+				    Derived2 = Table.AddColumn(Derived1, "concentration_label", each if [concentration_level] = "Low" then "Faible" else if [concentration_level] = "Moderate" then "Modérée" else "Élevée", type text),
+				    Prepared = Derived2,
+				    Result = Table.SelectRows(Prepared, each [year] = List.Max(Prepared[year]))
 				in
 				    Result
 

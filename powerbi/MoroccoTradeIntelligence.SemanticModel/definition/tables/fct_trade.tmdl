@@ -126,8 +126,9 @@ table fct_trade
 				let
 				    Source = Parquet.Document(Binary.Buffer(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/fct_trade.parquet"))),
 				    Selected = Table.SelectColumns(Source, {"year", "reporter_code", "partner_code", "flow_code", "cmd_code", "trade_value_usd", "cif_value_usd", "fob_value_usd", "net_weight_kg", "is_reported", "source_dataset"}),
-				    Typed = Table.TransformColumnTypes(Selected, {{"year", Int64.Type}, {"reporter_code", Int64.Type}, {"partner_code", Int64.Type}, {"flow_code", type text}, {"cmd_code", type text}, {"trade_value_usd", type number}, {"cif_value_usd", type number}, {"fob_value_usd", type number}, {"net_weight_kg", type number}, {"is_reported", type logical}, {"source_dataset", type text}}, "en-US")
+				    Typed = Table.TransformColumnTypes(Selected, {{"year", Int64.Type}, {"reporter_code", Int64.Type}, {"partner_code", Int64.Type}, {"flow_code", type text}, {"cmd_code", type text}, {"trade_value_usd", type number}, {"cif_value_usd", type number}, {"fob_value_usd", type number}, {"net_weight_kg", type number}, {"is_reported", type logical}, {"source_dataset", type text}}, "en-US"),
+				    Prepared = Typed
 				in
-				    Typed
+				    Prepared
 
 	annotation PBI_ResultType = Table

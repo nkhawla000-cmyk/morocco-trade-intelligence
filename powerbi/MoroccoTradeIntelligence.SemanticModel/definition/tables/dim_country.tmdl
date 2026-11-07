@@ -64,8 +64,9 @@ table dim_country
 				let
 				    Source = Parquet.Document(Binary.Buffer(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/dim_country.parquet"))),
 				    Selected = Table.SelectColumns(Source, {"country_code", "iso3", "country_name", "is_world", "is_special_area", "is_morocco", "is_mirror_partner"}),
-				    Typed = Table.TransformColumnTypes(Selected, {{"country_code", Int64.Type}, {"iso3", type text}, {"country_name", type text}, {"is_world", type logical}, {"is_special_area", type logical}, {"is_morocco", type logical}, {"is_mirror_partner", type logical}}, "en-US")
+				    Typed = Table.TransformColumnTypes(Selected, {{"country_code", Int64.Type}, {"iso3", type text}, {"country_name", type text}, {"is_world", type logical}, {"is_special_area", type logical}, {"is_morocco", type logical}, {"is_mirror_partner", type logical}}, "en-US"),
+				    Prepared = Typed
 				in
-				    Typed
+				    Prepared
 
 	annotation PBI_ResultType = Table

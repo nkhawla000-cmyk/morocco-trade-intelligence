@@ -80,8 +80,9 @@ table dim_product
 				let
 				    Source = Parquet.Document(Binary.Buffer(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/dim_product.parquet"))),
 				    Selected = Table.SelectColumns(Source, {"cmd_code", "product_description", "product_level", "hs_chapter", "hs_level", "focus_group", "focus_label", "focus_label_fr", "is_focus_product"}),
-				    Typed = Table.TransformColumnTypes(Selected, {{"cmd_code", type text}, {"product_description", type text}, {"product_level", type text}, {"hs_chapter", type text}, {"hs_level", Int64.Type}, {"focus_group", type text}, {"focus_label", type text}, {"focus_label_fr", type text}, {"is_focus_product", type logical}}, "en-US")
+				    Typed = Table.TransformColumnTypes(Selected, {{"cmd_code", type text}, {"product_description", type text}, {"product_level", type text}, {"hs_chapter", type text}, {"hs_level", Int64.Type}, {"focus_group", type text}, {"focus_label", type text}, {"focus_label_fr", type text}, {"is_focus_product", type logical}}, "en-US"),
+				    Prepared = Typed
 				in
-				    Typed
+				    Prepared
 
 	annotation PBI_ResultType = Table

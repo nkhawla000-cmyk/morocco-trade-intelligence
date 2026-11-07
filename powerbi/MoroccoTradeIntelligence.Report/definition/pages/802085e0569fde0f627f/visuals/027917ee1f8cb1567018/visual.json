@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "mart_trade_overview.year",
-              "nativeQueryRef": "year"
+              "nativeQueryRef": "year",
+              "displayName": "Année"
             },
             {
               "field": {
@@ -41,7 +42,8 @@
                 }
               },
               "queryRef": "mart_trade_overview.exports_growth",
-              "nativeQueryRef": "exports_growth"
+              "nativeQueryRef": "exports_growth",
+              "displayName": "Exportations"
             },
             {
               "field": {
@@ -55,7 +57,8 @@
                 }
               },
               "queryRef": "mart_trade_overview.imports_growth",
-              "nativeQueryRef": "imports_growth"
+              "nativeQueryRef": "imports_growth",
+              "displayName": "Importations"
             },
             {
               "field": {
@@ -65,11 +68,12 @@
                       "Entity": "mart_trade_overview"
                     }
                   },
-                  "Property": "possible_series_break"
+                  "Property": "series_break_label"
                 }
               },
-              "queryRef": "mart_trade_overview.possible_series_break",
-              "nativeQueryRef": "possible_series_break"
+              "queryRef": "mart_trade_overview.series_break_label",
+              "nativeQueryRef": "series_break_label",
+              "displayName": "Rupture possible"
             }
           ]
         }
@@ -135,6 +139,13 @@
               "expr": {
                 "Literal": {
                   "Value": "10D"
+                }
+              }
+            },
+            "wordWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             },

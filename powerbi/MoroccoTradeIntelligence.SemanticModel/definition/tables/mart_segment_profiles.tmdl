@@ -10,6 +10,14 @@ table mart_segment_profiles
 
 		annotation SummarizationSetBy = User
 
+	column segment_code
+		dataType: string
+		lineageTag: 08df5194-e874-5a1d-ba92-59c5409e68ea
+		summarizeBy: none
+		sourceColumn: segment_code
+
+		annotation SummarizationSetBy = User
+
 	column segment_label
 		dataType: string
 		lineageTag: b9ac4ed2-539d-53f9-b52a-18754e16168f
@@ -77,9 +85,10 @@ table mart_segment_profiles
 				let
 				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/mart_segment_profiles.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
-				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"segment_id", "segment_label", "partner_count", "total_trade_avg_usd", "median_export_share", "median_growth_rate", "median_automotive_export_share", "example_partners"}),
-				    Typed = Table.TransformColumnTypes(Blanks, {{"segment_id", Int64.Type}, {"segment_label", type text}, {"partner_count", Int64.Type}, {"total_trade_avg_usd", type number}, {"median_export_share", type number}, {"median_growth_rate", type number}, {"median_automotive_export_share", type number}, {"example_partners", type text}}, "en-US")
+				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"segment_id", "segment_code", "segment_label", "partner_count", "total_trade_avg_usd", "median_export_share", "median_growth_rate", "median_automotive_export_share", "example_partners"}),
+				    Typed = Table.TransformColumnTypes(Blanks, {{"segment_id", Int64.Type}, {"segment_code", type text}, {"segment_label", type text}, {"partner_count", Int64.Type}, {"total_trade_avg_usd", type number}, {"median_export_share", type number}, {"median_growth_rate", type number}, {"median_automotive_export_share", type number}, {"example_partners", type text}}, "en-US"),
+				    Prepared = Typed
 				in
-				    Typed
+				    Prepared
 
 	annotation PBI_ResultType = Table

@@ -43,8 +43,21 @@ def object_id(*parts: str) -> str:
 # Semantic model
 # --------------------------------------------------------------------------
 
-def table(name, file, columns, filter_m=None, measures=()):
-    return {"name": name, "file": file, "columns": columns, "filter_m": filter_m, "measures": list(measures)}
+def table(name, file, columns, filter_m=None, measures=(), derived=()):
+    """filter_m: Power Query row filter on the step named Prepared.
+    derived: (name, M expression) text columns added in Power Query, used for French labels."""
+    return {"name": name, "file": file, "columns": columns, "filter_m": filter_m,
+            "measures": list(measures), "derived": list(derived)}
+
+
+FLOW_LABEL = ("flow_label", 'if [flow_code] = "X" then "Exportations" else "Importations"')
+LEVEL_LABEL = ("concentration_label",
+               'if [concentration_level] = "Low" then "Faible" '
+               'else if [concentration_level] = "Moderate" then "Modérée" else "Élevée"')
+
+
+def yes_no(name: str, column: str) -> tuple[str, str]:
+    return (name, f'if [{column}] = true then "Oui" else "Non"')
 
 
 def measure(name, expression, fmt):
@@ -96,23 +109,23 @@ CALCULATE (
     table(OVERVIEW, "mart_trade_overview.csv", [
         ("year", INT), ("exports_usd", NUM), ("imports_usd", NUM), ("trade_balance_usd", NUM),
         ("coverage_ratio", NUM), ("exports_growth", NUM), ("imports_growth", NUM), ("possible_series_break", BOOL),
-    ], measures=[
+    ], derived=[yes_no("series_break_label", "possible_series_break")], measures=[
         measure("Exportations (USD)", "SUM ( mart_trade_overview[exports_usd] )", "#,0"),
         measure("Importations (USD)", "SUM ( mart_trade_overview[imports_usd] )", "#,0"),
         measure("Solde commercial (USD)", "SUM ( mart_trade_overview[trade_balance_usd] )", "#,0"),
         measure("Dernière année", "MAX ( mart_trade_overview[year] )", "0"),
-        measure("Exportations, dernière année", """
+        measure("Exportations", """
 VAR LastYear = MAX ( mart_trade_overview[year] )
 RETURN
     CALCULATE ( [Exportations (USD)], mart_trade_overview[year] = LastYear )""", "#,0"),
-        measure("Importations, dernière année", """
+        measure("Importations", """
 VAR LastYear = MAX ( mart_trade_overview[year] )
 RETURN
     CALCULATE ( [Importations (USD)], mart_trade_overview[year] = LastYear )""", "#,0"),
-        measure("Solde, dernière année", """
-[Exportations, dernière année] - [Importations, dernière année]""", "#,0"),
-        measure("Taux de couverture, dernière année", """
-DIVIDE ( [Exportations, dernière année], [Importations, dernière année] )""", "0.0%"),
+        measure("Solde commercial", """
+[Exportations] - [Importations]""", "#,0"),
+        measure("Taux de couverture", """
+DIVIDE ( [Exportations], [Importations] )""", "0.0%"),
     ]),
     table("mart_partner_shares", "mart_partner_shares.csv", [
         ("year", INT), ("flow_code", TEXT), ("partner_code", INT), ("partner_name", TEXT), ("is_special_area", BOOL),
@@ -125,7 +138,8 @@ RETURN
         SUM ( mart_partner_shares[share_of_world] ),
         mart_partner_shares[year] = SelectedYear,
         mart_partner_shares[flow_code] = "{flow}",
-        mart_partner_shares[partner_rank] <= {top}
+        mart_partner_shares[partner_rank] <= {top},
+        mart_partner_shares[is_special_area] = FALSE ()
     )""", "0.0%")
         for label, flow, top in [
             ("exportations (top 10)", "X", 10), ("importations (top 10)", "M", 10),
@@ -148,19 +162,20 @@ RETURN
     )""", "0.0%")
         for label, flow in [("exportations", "X"), ("importations", "M")]
     ]),
-    table("mart_concentration", "mart_concentration.csv", CONCENTRATION_COLUMNS, measures=[
+    table("mart_concentration", "mart_concentration.csv", CONCENTRATION_COLUMNS, derived=[FLOW_LABEL, LEVEL_LABEL], measures=[
         measure("HHI exportations", """
 CALCULATE ( AVERAGE ( mart_concentration[hhi] ), mart_concentration[flow_code] = "X" )""", "#,0"),
         measure("HHI importations", """
 CALCULATE ( AVERAGE ( mart_concentration[hhi] ), mart_concentration[flow_code] = "M" )""", "#,0"),
     ]),
     table("mart_concentration_latest", "mart_concentration.csv", CONCENTRATION_COLUMNS,
-          filter_m="Table.SelectRows(Typed, each [year] = List.Max(Typed[year]))"),
+          filter_m="Table.SelectRows(Prepared, each [year] = List.Max(Prepared[year]))",
+          derived=[FLOW_LABEL, LEVEL_LABEL]),
     table("mart_mirror_gaps", "mart_mirror_gaps.csv", [
         ("year", INT), ("flow_code", TEXT), ("comparison", TEXT), ("counterpart_code", INT),
         ("counterpart_name", TEXT), ("declared_value_usd", NUM), ("mirror_value_usd", NUM), ("gap_usd", NUM),
         ("gap_ratio", NUM), ("needs_review", BOOL),
-    ], measures=[
+    ], derived=[FLOW_LABEL, yes_no("review_label", "needs_review")], measures=[
         measure("Comparaisons miroir", "COUNTROWS ( mart_mirror_gaps )", "0"),
         measure("Comparaisons à examiner", """
 CALCULATE ( COUNTROWS ( mart_mirror_gaps ), mart_mirror_gaps[needs_review] = TRUE () )""", "0"),
@@ -169,11 +184,11 @@ CALCULATE ( COUNTROWS ( mart_mirror_gaps ), mart_mirror_gaps[needs_review] = TRU
         ("year", INT), ("flow_code", TEXT), ("partner_code", INT), ("partner_name", TEXT),
         ("previous_value_usd", NUM), ("trade_value_usd", NUM), ("change_ratio", NUM),
         ("typical_change_ratio", NUM), ("robust_z", NUM), ("partners_compared", INT), ("is_anomaly", BOOL),
-    ], filter_m="Table.SelectRows(Typed, each [is_anomaly] = true)", measures=[
+    ], filter_m="Table.SelectRows(Prepared, each [is_anomaly] = true)", derived=[FLOW_LABEL], measures=[
         measure("Anomalies détectées", "COUNTROWS ( mart_flow_anomalies )", "0"),
     ]),
     table("mart_partner_segments", "mart_partner_segments.csv", [
-        ("partner_code", INT), ("partner_name", TEXT), ("segment_id", INT), ("segment_label", TEXT),
+        ("partner_code", INT), ("partner_name", TEXT), ("segment_id", INT), ("segment_code", TEXT), ("segment_label", TEXT),
         ("exports_avg_usd", NUM), ("imports_avg_usd", NUM), ("log10_trade_usd", NUM), ("export_share", NUM),
         ("growth_rate", NUM), ("automotive_export_share", NUM),
     ], measures=[
@@ -184,7 +199,7 @@ SUM ( mart_partner_segments[exports_avg_usd] ) + SUM ( mart_partner_segments[imp
         measure("Partenaires segmentés", "COUNTROWS ( mart_partner_segments )", "0"),
     ]),
     table("mart_segment_profiles", "mart_segment_profiles.csv", [
-        ("segment_id", INT), ("segment_label", TEXT), ("partner_count", INT), ("total_trade_avg_usd", NUM),
+        ("segment_id", INT), ("segment_code", TEXT), ("segment_label", TEXT), ("partner_count", INT), ("total_trade_avg_usd", NUM),
         ("median_export_share", NUM), ("median_growth_rate", NUM), ("median_automotive_export_share", NUM),
         ("example_partners", TEXT),
     ]),
@@ -233,11 +248,18 @@ def m_source(spec: dict) -> list[str]:
             + ", ".join(f'"{n}"' for n in names) + "}),",
             f'    Typed = Table.TransformColumnTypes(Blanks, {{{types}}}, "en-US")',
         ]
+    previous = "Typed"
+    for number, (name, expression) in enumerate(spec["derived"], start=1):
+        lines[-1] += ","
+        lines.append(f'    Derived{number} = Table.AddColumn({previous}, "{name}", each {expression}, type text)')
+        previous = f"Derived{number}"
+    lines[-1] += ","
+    lines.append(f"    Prepared = {previous}")
     if spec["filter_m"]:
         lines[-1] += ","
         lines += [f"    Result = {spec['filter_m']}", "in", "    Result"]
     else:
-        lines += ["in", "    Typed"]
+        lines += ["in", "    Prepared"]
     return lines
 
 
@@ -255,7 +277,7 @@ def table_tmdl(spec: dict) -> str:
         out.append(f"\t\tformatString: {m['format']}")
         out.append(f"\t\tlineageTag: {tag('measure', t, m['name'])}")
         out.append("")
-    for name, kind in spec["columns"]:
+    for name, kind in spec["columns"] + [(name, TEXT) for name, _ in spec["derived"]]:
         out.append(f"\tcolumn {quote(name)}")
         out.append(f"\t\tdataType: {kind}")
         fmt = column_format(name, kind)
@@ -338,11 +360,15 @@ def measure_field(entity: str, prop: str) -> dict:
     return {"Measure": {"Expression": {"SourceRef": {"Entity": entity}}, "Property": prop}}
 
 
-def projection(field: dict, active: bool = False) -> dict:
+def projection(field, active: bool = False) -> dict:
+    """field, or (field, French header shown in the visual)."""
+    field, display = field if isinstance(field, tuple) else (field, None)
     kind = "Column" if "Column" in field else "Measure"
     entity = field[kind]["Expression"]["SourceRef"]["Entity"]
     prop = field[kind]["Property"]
     item = {"field": field, "queryRef": f"{entity}.{prop}", "nativeQueryRef": prop}
+    if display:
+        item["displayName"] = display
     if active:
         item["active"] = True
     return item
@@ -418,11 +444,13 @@ class Page:
             },
         })
 
-    def card(self, x, y, w, h, entity, measure_name, accent, units="1000000000D", precision="1L") -> None:
+    def card(self, x, y, w, h, entity, measure_name, accent, billions=False) -> None:
         value = {"fontColor": color(TEXT_MAIN), "fontSize": lit("24D")}
-        if units:
-            value["labelDisplayUnits"] = lit(units)
-            value["labelPrecision"] = lit(precision)
+        if billions:
+            value["labelDisplayUnits"] = lit("1000000000D")
+            value["labelPrecision"] = lit("1L")
+        else:
+            value["labelDisplayUnits"] = lit("1D")
         self.add(x, y, w, h, {
             "visualType": "cardVisual",
             "query": {"queryState": {"Data": {"projections": [projection(measure_field(entity, measure_name))]}}},
@@ -453,7 +481,7 @@ class Page:
         })
 
     def chart(self, x, y, w, h, visual_type, title, category, values, series=None, sort_by=None,
-              data_color=None, labels=False) -> None:
+              data_color=None, labels=False, categorical=False) -> None:
         state = {
             "Category": {"projections": [projection(category, active=True)]},
             "Y": {"projections": [projection(v) for v in values]},
@@ -463,11 +491,16 @@ class Page:
         query = {"queryState": state}
         if sort_by:
             query["sortDefinition"] = {"sort": [{"field": sort_by, "direction": "Descending"}], "isDefaultSort": True}
+        category_axis = {"fontSize": lit("11D"), "labelColor": color("#DCE9F8"), "showAxisTitle": lit("false")}
+        if categorical:
+            category_axis["axisType"] = lit("'Categorical'")
         objects = {
-            "categoryAxis": [{"properties": {"fontSize": lit("11D"), "labelColor": color("#DCE9F8")}}],
-            "valueAxis": [{"properties": {"fontSize": lit("11D"), "labelColor": color("#B8CBE1")}}],
+            "categoryAxis": [{"properties": category_axis}],
+            "valueAxis": [{"properties": {"fontSize": lit("11D"), "labelColor": color("#B8CBE1"),
+                                          "showAxisTitle": lit("false")}}],
             "legend": [{"properties": {"show": lit("true" if (series or len(values) > 1) else "false"),
-                                       "labelColor": color("#DCE9F8"), "fontSize": lit("11D")}}],
+                                       "showTitle": lit("false"), "labelColor": color("#DCE9F8"),
+                                       "fontSize": lit("11D")}}],
         }
         if data_color:
             objects["dataPoint"] = [{"properties": {"defaultColor": color(data_color)}}]
@@ -491,7 +524,7 @@ class Page:
             "objects": {
                 "columnHeaders": [{"properties": {"fontSize": lit("11D"), "fontColor": color(TEXT_MAIN),
                                                   "backColor": color(HEADER)}}],
-                "values": [{"properties": {"fontSize": lit("10D"), "fontColorPrimary": color(TEXT_MAIN),
+                "values": [{"properties": {"fontSize": lit("10D"), "wordWrap": lit("true"), "fontColorPrimary": color(TEXT_MAIN),
                                            "backColorPrimary": color(PANEL), "fontColorSecondary": color(TEXT_MAIN),
                                            "backColorSecondary": color("#1D3250")}}],
             },
@@ -512,8 +545,8 @@ class Page:
             "objects": {
                 "categoryAxis": [{"properties": {"fontSize": lit("11D"), "labelColor": color("#DCE9F8")}}],
                 "valueAxis": [{"properties": {"fontSize": lit("11D"), "labelColor": color("#B8CBE1")}}],
-                "legend": [{"properties": {"show": lit("true"), "labelColor": color("#DCE9F8"), "fontSize": lit("10D"),
-                                           "position": lit("'Bottom'")}}],
+                "legend": [{"properties": {"show": lit("true"), "showTitle": lit("false"), "labelColor": color("#DCE9F8"),
+                                           "fontSize": lit("11D"), "position": lit("'Right'")}}],
             },
             "visualContainerObjects": panel_objects(title),
             "drillFilterOtherVisuals": True,
@@ -543,15 +576,14 @@ def build_pages() -> list[Page]:
              "Commerce extérieur du Maroc avec le monde, 2019–2025 · cartes : dernière année disponible",
              "Attention : rupture de série à partir de 2024 dans les données déclarées par le Maroc "
              "(voir la page Qualité des données). " + SOURCE_NOTE)
-    cards = [("Dernière année", TEAL, None), ("Exportations, dernière année", TEAL, "1000000000D"),
-             ("Importations, dernière année", BLUE, "1000000000D"), ("Solde, dernière année", PINK, "1000000000D"),
-             ("Taux de couverture, dernière année", AMBER, None)]
-    for i, (name, accent, units) in enumerate(cards):
-        p.card(20 + i * 248, 114, 236, 110, OVERVIEW, name, accent, units=units)
+    cards = [("Dernière année", TEAL, False), ("Exportations", TEAL, True), ("Importations", BLUE, True),
+             ("Solde commercial", PINK, True), ("Taux de couverture", AMBER, False)]
+    for i, (name, accent, billions) in enumerate(cards):
+        p.card(20 + i * 248, 114, 236, 110, OVERVIEW, name, accent, billions=billions)
     p.chart(20, 240, 760, 430, "lineChart", "Exportations et importations (USD)", C(OVERVIEW, "year"),
-            [M(OVERVIEW, "Exportations (USD)"), M(OVERVIEW, "Importations (USD)")])
+            [M(OVERVIEW, "Exportations (USD)"), M(OVERVIEW, "Importations (USD)")], categorical=True)
     p.chart(800, 240, 460, 430, "clusteredColumnChart", "Solde commercial (USD)", C(OVERVIEW, "year"),
-            [M(OVERVIEW, "Solde commercial (USD)")], data_color=PINK)
+            [M(OVERVIEW, "Solde commercial (USD)")], data_color=PINK, categorical=True)
     pages.append(p)
 
     shares = "mart_partner_shares"
@@ -559,9 +591,9 @@ def build_pages() -> list[Page]:
              "Principaux clients et fournisseurs du Maroc · choisir une année (par défaut : la plus récente)",
              "Parts calculées sur le total mondial de l'année ; zones non spécifiées exclues du classement. " + SOURCE_NOTE)
     p.slicer(20, 112, 260, 80, "dim_year", "year", "Année")
-    p.card(300, 112, 220, 80, "dim_year", "Année affichée", TEAL, units=None)
-    p.card(540, 112, 350, 80, shares, "Part des 5 premiers clients", TEAL, units=None)
-    p.card(910, 112, 350, 80, shares, "Part des 5 premiers fournisseurs", BLUE, units=None)
+    p.card(300, 112, 220, 80, "dim_year", "Année affichée", TEAL)
+    p.card(540, 112, 350, 80, shares, "Part des 5 premiers clients", TEAL)
+    p.card(910, 112, 350, 80, shares, "Part des 5 premiers fournisseurs", BLUE)
     for i, (title, measure_name, accent) in enumerate([
         ("Principaux clients : part des exportations", "Part des exportations (top 10)", TEAL),
         ("Principaux fournisseurs : part des importations", "Part des importations (top 10)", BLUE),
@@ -575,7 +607,7 @@ def build_pages() -> list[Page]:
              "Structure des échanges par chapitre du Système harmonisé (SH) · choisir une année",
              "Part de chaque chapitre dans le total des chapitres de l'année. " + SOURCE_NOTE)
     p.slicer(20, 112, 260, 80, "dim_year", "year", "Année")
-    p.card(300, 112, 220, 80, "dim_year", "Année affichée", TEAL, units=None)
+    p.card(300, 112, 220, 80, "dim_year", "Année affichée", TEAL)
     for i, (title, measure_name, accent) in enumerate([
         ("Principaux chapitres exportés", "Part des exportations par chapitre (top 10)", TEAL),
         ("Principaux chapitres importés", "Part des importations par chapitre (top 10)", BLUE),
@@ -590,14 +622,16 @@ def build_pages() -> list[Page]:
              "HHI = 10 000 × somme des parts au carré ; moins de 1 500 : faible, 1 500 à 2 500 : modérée, "
              "plus de 2 500 : élevée. " + SOURCE_NOTE)
     p.chart(20, 112, 610, 280, "clusteredColumnChart", "Exportations automobiles (USD)", C("dim_year", "year"),
-            [M("fct_trade", "Exportations automobiles (USD)")], series=C("dim_product", "focus_label_fr"))
+            [M("fct_trade", "Exportations automobiles (USD)")], series=C("dim_product", "focus_label_fr"),
+            categorical=True)
     p.chart(650, 112, 610, 280, "lineChart", "Concentration des clients à l'export (HHI)",
             C("mart_concentration", "year"), [M("mart_concentration", "HHI exportations")],
-            series=C("mart_concentration", "scope_label"))
+            series=C("mart_concentration", "scope_label"), categorical=True)
     p.table(20, 406, 1240, 264, "Concentration des partenaires — dernière année", [
-        C(latest, "scope_label"), C(latest, "flow_code"), C(latest, "partner_count"), C(latest, "hhi"),
-        C(latest, "concentration_level"), C(latest, "top_partner_name"), C(latest, "top_partner_share"),
-        C(latest, "top5_share"),
+        (C(latest, "scope_label"), "Produits"), (C(latest, "flow_label"), "Flux"),
+        (C(latest, "partner_count"), "Partenaires"), (C(latest, "hhi"), "HHI"),
+        (C(latest, "concentration_label"), "Concentration"), (C(latest, "top_partner_name"), "Premier partenaire"),
+        (C(latest, "top_partner_share"), "Part du premier"), (C(latest, "top5_share"), "Part des 5 premiers"),
     ], sort_by=C(latest, "hhi"))
     pages.append(p)
 
@@ -607,21 +641,24 @@ def build_pages() -> list[Page]:
              "Écart miroir = (déclaration du partenaire − déclaration du Maroc) / déclaration du Maroc ; "
              "au-delà de 20 % : à examiner. Anomalie : score z robuste > 3,5. " + SOURCE_NOTE)
     p.slicer(20, 112, 260, 80, "dim_year", "year", "Année")
-    p.card(300, 112, 300, 80, mirror, "Comparaisons miroir", TEAL, units=None)
-    p.card(620, 112, 300, 80, mirror, "Comparaisons à examiner", PINK, units=None)
-    p.card(940, 112, 320, 80, anomalies, "Anomalies détectées", AMBER, units=None)
+    p.card(300, 112, 300, 80, mirror, "Comparaisons miroir", TEAL)
+    p.card(620, 112, 300, 80, mirror, "Comparaisons à examiner", PINK)
+    p.card(940, 112, 320, 80, anomalies, "Anomalies détectées", AMBER)
     p.table(20, 206, 760, 270, "Statistiques miroirs : Maroc et partenaires", [
-        C(mirror, "year"), C(mirror, "flow_code"), C(mirror, "counterpart_name"), C(mirror, "declared_value_usd"),
-        C(mirror, "mirror_value_usd"), C(mirror, "gap_ratio"), C(mirror, "needs_review"),
+        (C(mirror, "year"), "Année"), (C(mirror, "flow_label"), "Flux du Maroc"),
+        (C(mirror, "counterpart_name"), "Partenaire"), (C(mirror, "declared_value_usd"), "Déclaré par le Maroc (USD)"),
+        (C(mirror, "mirror_value_usd"), "Déclaré par le partenaire (USD)"), (C(mirror, "gap_ratio"), "Écart"),
+        (C(mirror, "review_label"), "À examiner"),
     ], sort_by=C(mirror, "declared_value_usd"))
     p.table(800, 206, 460, 270, "Rupture de série : variation annuelle du total", [
-        C(OVERVIEW, "year"), C(OVERVIEW, "exports_growth"), C(OVERVIEW, "imports_growth"),
-        C(OVERVIEW, "possible_series_break"),
+        (C(OVERVIEW, "year"), "Année"), (C(OVERVIEW, "exports_growth"), "Exportations"),
+        (C(OVERVIEW, "imports_growth"), "Importations"), (C(OVERVIEW, "series_break_label"), "Rupture possible"),
     ], sort_by=C(OVERVIEW, "year"), ascending=True)
     p.table(20, 490, 1240, 180, "Variations anormales par partenaire", [
-        C(anomalies, "year"), C(anomalies, "flow_code"), C(anomalies, "partner_name"),
-        C(anomalies, "previous_value_usd"), C(anomalies, "trade_value_usd"), C(anomalies, "change_ratio"),
-        C(anomalies, "robust_z"),
+        (C(anomalies, "year"), "Année"), (C(anomalies, "flow_label"), "Flux"),
+        (C(anomalies, "partner_name"), "Partenaire"), (C(anomalies, "previous_value_usd"), "Année précédente (USD)"),
+        (C(anomalies, "trade_value_usd"), "Année (USD)"), (C(anomalies, "change_ratio"), "Variation"),
+        (C(anomalies, "robust_z"), "Score z robuste"),
     ], sort_by=C(anomalies, "year"))
     pages.append(p)
 
@@ -630,18 +667,19 @@ def build_pages() -> list[Page]:
              "k-means sur 4 indicateurs : taille, part des exportations, croissance, part automobile (2019–2023)",
              "Période 2019–2023, avant la rupture de série ; nombre de segments choisi par le score de silhouette. "
              + SOURCE_NOTE)
-    p.card(20, 112, 240, 80, segments, "Partenaires segmentés", VIOLET, units=None)
-    p.textbox(290, 118, 970, 70,
-              "Chaque point est un pays partenaire. Axe horizontal : part des exportations dans les échanges "
-              "(à droite = débouché, à gauche = fournisseur). Axe vertical : croissance annuelle moyenne. "
-              "Taille : volume des échanges.", 13, TEXT_MUTED, "Segoe UI")
-    p.scatter(20, 206, 760, 464, "Partenaires par segment", C(segments, "partner_name"), C(segments, "segment_label"),
+    p.scatter(20, 112, 1240, 334,
+              "Chaque point est un pays : à droite, débouchés à l'export ; à gauche, fournisseurs ; "
+              "en haut, forte croissance ; taille = volume des échanges",
+              C(segments, "partner_name"), C(segments, "segment_code"),
               M(segments, "Part des exportations (moyenne)"), M(segments, "Croissance annuelle (moyenne)"),
               M(segments, "Commerce moyen (USD)"))
-    p.table(800, 206, 460, 464, "Profil des segments", [
-        C(profiles, "segment_label"), C(profiles, "partner_count"), C(profiles, "median_export_share"),
-        C(profiles, "median_growth_rate"), C(profiles, "example_partners"),
-    ], sort_by=C(profiles, "partner_count"))
+    p.table(20, 458, 1240, 212, "Profil des segments", [
+        (C(profiles, "segment_code"), "Segment"), (C(profiles, "segment_label"), "Profil"),
+        (C(profiles, "partner_count"), "Partenaires"), (C(profiles, "median_export_share"), "Part export (médiane)"),
+        (C(profiles, "median_growth_rate"), "Croissance (médiane)"),
+        (C(profiles, "median_automotive_export_share"), "Part automobile (médiane)"),
+        (C(profiles, "example_partners"), "Exemples"),
+    ], sort_by=C(profiles, "segment_code"), ascending=True)
     pages.append(p)
     return pages
 

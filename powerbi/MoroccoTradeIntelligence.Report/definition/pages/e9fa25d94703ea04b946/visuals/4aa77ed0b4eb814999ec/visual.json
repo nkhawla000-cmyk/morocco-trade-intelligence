@@ -23,11 +23,11 @@
                       "Entity": "mart_trade_overview"
                     }
                   },
-                  "Property": "Importations, dernière année"
+                  "Property": "Importations"
                 }
               },
-              "queryRef": "mart_trade_overview.Importations, dernière année",
-              "nativeQueryRef": "Importations, dernière année"
+              "queryRef": "mart_trade_overview.Importations",
+              "nativeQueryRef": "Importations"
             }
           ]
         }

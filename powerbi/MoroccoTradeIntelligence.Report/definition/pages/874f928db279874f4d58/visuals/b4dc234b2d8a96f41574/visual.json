@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "mart_concentration_latest.scope_label",
-              "nativeQueryRef": "scope_label"
+              "nativeQueryRef": "scope_label",
+              "displayName": "Produits"
             },
             {
               "field": {
@@ -37,11 +38,12 @@
                       "Entity": "mart_concentration_latest"
                     }
                   },
-                  "Property": "flow_code"
+                  "Property": "flow_label"
                 }
               },
-              "queryRef": "mart_concentration_latest.flow_code",
-              "nativeQueryRef": "flow_code"
+              "queryRef": "mart_concentration_latest.flow_label",
+              "nativeQueryRef": "flow_label",
+              "displayName": "Flux"
             },
             {
               "field": {
@@ -55,7 +57,8 @@
                 }
               },
               "queryRef": "mart_concentration_latest.partner_count",
-              "nativeQueryRef": "partner_count"
+              "nativeQueryRef": "partner_count",
+              "displayName": "Partenaires"
             },
             {
               "field": {
@@ -69,7 +72,8 @@
                 }
               },
               "queryRef": "mart_concentration_latest.hhi",
-              "nativeQueryRef": "hhi"
+              "nativeQueryRef": "hhi",
+              "displayName": "HHI"
             },
             {
               "field": {
@@ -79,11 +83,12 @@
                       "Entity": "mart_concentration_latest"
                     }
                   },
-                  "Property": "concentration_level"
+                  "Property": "concentration_label"
                 }
               },
-              "queryRef": "mart_concentration_latest.concentration_level",
-              "nativeQueryRef": "concentration_level"
+              "queryRef": "mart_concentration_latest.concentration_label",
+              "nativeQueryRef": "concentration_label",
+              "displayName": "Concentration"
             },
             {
               "field": {
@@ -97,7 +102,8 @@
                 }
               },
               "queryRef": "mart_concentration_latest.top_partner_name",
-              "nativeQueryRef": "top_partner_name"
+              "nativeQueryRef": "top_partner_name",
+              "displayName": "Premier partenaire"
             },
             {
               "field": {
@@ -111,7 +117,8 @@
                 }
               },
               "queryRef": "mart_concentration_latest.top_partner_share",
-              "nativeQueryRef": "top_partner_share"
+              "nativeQueryRef": "top_partner_share",
+              "displayName": "Part du premier"
             },
             {
               "field": {
@@ -125,7 +132,8 @@
                 }
               },
               "queryRef": "mart_concentration_latest.top5_share",
-              "nativeQueryRef": "top5_share"
+              "nativeQueryRef": "top5_share",
+              "displayName": "Part des 5 premiers"
             }
           ]
         }
@@ -191,6 +199,13 @@
               "expr": {
                 "Literal": {
                   "Value": "10D"
+                }
+              }
+            },
+            "wordWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             },

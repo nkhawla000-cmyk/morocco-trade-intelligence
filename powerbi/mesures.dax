@@ -41,24 +41,24 @@ Dernière année =
     MAX ( mart_trade_overview[year] )
 
 // Table : mart_trade_overview · format : #,0
-Exportations, dernière année =
+Exportations =
     VAR LastYear = MAX ( mart_trade_overview[year] )
     RETURN
         CALCULATE ( [Exportations (USD)], mart_trade_overview[year] = LastYear )
 
 // Table : mart_trade_overview · format : #,0
-Importations, dernière année =
+Importations =
     VAR LastYear = MAX ( mart_trade_overview[year] )
     RETURN
         CALCULATE ( [Importations (USD)], mart_trade_overview[year] = LastYear )
 
 // Table : mart_trade_overview · format : #,0
-Solde, dernière année =
-    [Exportations, dernière année] - [Importations, dernière année]
+Solde commercial =
+    [Exportations] - [Importations]
 
 // Table : mart_trade_overview · format : 0.0%
-Taux de couverture, dernière année =
-    DIVIDE ( [Exportations, dernière année], [Importations, dernière année] )
+Taux de couverture =
+    DIVIDE ( [Exportations], [Importations] )
 
 // Table : mart_partner_shares · format : 0.0%
 Part des exportations (top 10) =
@@ -68,7 +68,8 @@ Part des exportations (top 10) =
             SUM ( mart_partner_shares[share_of_world] ),
             mart_partner_shares[year] = SelectedYear,
             mart_partner_shares[flow_code] = "X",
-            mart_partner_shares[partner_rank] <= 10
+            mart_partner_shares[partner_rank] <= 10,
+            mart_partner_shares[is_special_area] = FALSE ()
         )
 
 // Table : mart_partner_shares · format : 0.0%
@@ -79,7 +80,8 @@ Part des importations (top 10) =
             SUM ( mart_partner_shares[share_of_world] ),
             mart_partner_shares[year] = SelectedYear,
             mart_partner_shares[flow_code] = "M",
-            mart_partner_shares[partner_rank] <= 10
+            mart_partner_shares[partner_rank] <= 10,
+            mart_partner_shares[is_special_area] = FALSE ()
         )
 
 // Table : mart_partner_shares · format : 0.0%
@@ -90,7 +92,8 @@ Part des 5 premiers clients =
             SUM ( mart_partner_shares[share_of_world] ),
             mart_partner_shares[year] = SelectedYear,
             mart_partner_shares[flow_code] = "X",
-            mart_partner_shares[partner_rank] <= 5
+            mart_partner_shares[partner_rank] <= 5,
+            mart_partner_shares[is_special_area] = FALSE ()
         )
 
 // Table : mart_partner_shares · format : 0.0%
@@ -101,7 +104,8 @@ Part des 5 premiers fournisseurs =
             SUM ( mart_partner_shares[share_of_world] ),
             mart_partner_shares[year] = SelectedYear,
             mart_partner_shares[flow_code] = "M",
-            mart_partner_shares[partner_rank] <= 5
+            mart_partner_shares[partner_rank] <= 5,
+            mart_partner_shares[is_special_area] = FALSE ()
         )
 
 // Table : mart_chapter_structure · format : 0.0%

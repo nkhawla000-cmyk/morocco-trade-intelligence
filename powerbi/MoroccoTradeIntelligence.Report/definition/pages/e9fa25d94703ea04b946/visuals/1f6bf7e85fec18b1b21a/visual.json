@@ -73,6 +73,20 @@
                   }
                 }
               }
+            },
+            "showAxisTitle": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "axisType": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Categorical'"
+                }
+              }
             }
           }
         }
@@ -97,6 +111,13 @@
                   }
                 }
               }
+            },
+            "showAxisTitle": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
             }
           }
         }
@@ -105,6 +126,13 @@
         {
           "properties": {
             "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "showTitle": {
               "expr": {
                 "Literal": {
                   "Value": "false"

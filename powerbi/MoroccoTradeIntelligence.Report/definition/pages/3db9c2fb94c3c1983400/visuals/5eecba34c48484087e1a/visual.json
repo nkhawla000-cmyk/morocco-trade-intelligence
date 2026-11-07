@@ -1,113 +1,148 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
-  "name": "2d18d04b4120ea99423e",
+  "name": "5eecba34c48484087e1a",
   "position": {
     "x": 20,
-    "y": 206,
-    "z": 800,
-    "height": 464,
-    "width": 760,
-    "tabOrder": 8
+    "y": 458,
+    "z": 700,
+    "height": 212,
+    "width": 1240,
+    "tabOrder": 7
   },
   "visual": {
-    "visualType": "scatterChart",
+    "visualType": "tableEx",
     "query": {
       "queryState": {
-        "Category": {
+        "Values": {
           "projections": [
             {
               "field": {
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "mart_partner_segments"
+                      "Entity": "mart_segment_profiles"
                     }
                   },
-                  "Property": "partner_name"
+                  "Property": "segment_code"
                 }
               },
-              "queryRef": "mart_partner_segments.partner_name",
-              "nativeQueryRef": "partner_name",
-              "active": true
-            }
-          ]
-        },
-        "Series": {
-          "projections": [
+              "queryRef": "mart_segment_profiles.segment_code",
+              "nativeQueryRef": "segment_code",
+              "displayName": "Segment"
+            },
             {
               "field": {
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "mart_partner_segments"
+                      "Entity": "mart_segment_profiles"
                     }
                   },
                   "Property": "segment_label"
                 }
               },
-              "queryRef": "mart_partner_segments.segment_label",
-              "nativeQueryRef": "segment_label"
-            }
-          ]
-        },
-        "X": {
-          "projections": [
+              "queryRef": "mart_segment_profiles.segment_label",
+              "nativeQueryRef": "segment_label",
+              "displayName": "Profil"
+            },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "mart_partner_segments"
+                      "Entity": "mart_segment_profiles"
                     }
                   },
-                  "Property": "Part des exportations (moyenne)"
+                  "Property": "partner_count"
                 }
               },
-              "queryRef": "mart_partner_segments.Part des exportations (moyenne)",
-              "nativeQueryRef": "Part des exportations (moyenne)"
-            }
-          ]
-        },
-        "Y": {
-          "projections": [
+              "queryRef": "mart_segment_profiles.partner_count",
+              "nativeQueryRef": "partner_count",
+              "displayName": "Partenaires"
+            },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "mart_partner_segments"
+                      "Entity": "mart_segment_profiles"
                     }
                   },
-                  "Property": "Croissance annuelle (moyenne)"
+                  "Property": "median_export_share"
                 }
               },
-              "queryRef": "mart_partner_segments.Croissance annuelle (moyenne)",
-              "nativeQueryRef": "Croissance annuelle (moyenne)"
-            }
-          ]
-        },
-        "Size": {
-          "projections": [
+              "queryRef": "mart_segment_profiles.median_export_share",
+              "nativeQueryRef": "median_export_share",
+              "displayName": "Part export (médiane)"
+            },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "mart_partner_segments"
+                      "Entity": "mart_segment_profiles"
                     }
                   },
-                  "Property": "Commerce moyen (USD)"
+                  "Property": "median_growth_rate"
                 }
               },
-              "queryRef": "mart_partner_segments.Commerce moyen (USD)",
-              "nativeQueryRef": "Commerce moyen (USD)"
+              "queryRef": "mart_segment_profiles.median_growth_rate",
+              "nativeQueryRef": "median_growth_rate",
+              "displayName": "Croissance (médiane)"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "mart_segment_profiles"
+                    }
+                  },
+                  "Property": "median_automotive_export_share"
+                }
+              },
+              "queryRef": "mart_segment_profiles.median_automotive_export_share",
+              "nativeQueryRef": "median_automotive_export_share",
+              "displayName": "Part automobile (médiane)"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "mart_segment_profiles"
+                    }
+                  },
+                  "Property": "example_partners"
+                }
+              },
+              "queryRef": "mart_segment_profiles.example_partners",
+              "nativeQueryRef": "example_partners",
+              "displayName": "Exemples"
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "mart_segment_profiles"
+                  }
+                },
+                "Property": "segment_code"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
       }
     },
     "objects": {
-      "categoryAxis": [
+      "columnHeaders": [
         {
           "properties": {
             "fontSize": {
@@ -117,12 +152,23 @@
                 }
               }
             },
-            "labelColor": {
+            "fontColor": {
               "solid": {
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#DCE9F8'"
+                      "Value": "'#F2F7FF'"
+                    }
+                  }
+                }
+              }
+            },
+            "backColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#10223A'"
                     }
                   }
                 }
@@ -131,51 +177,9 @@
           }
         }
       ],
-      "valueAxis": [
+      "values": [
         {
           "properties": {
-            "fontSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "11D"
-                }
-              }
-            },
-            "labelColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#B8CBE1'"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      ],
-      "legend": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "labelColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#DCE9F8'"
-                    }
-                  }
-                }
-              }
-            },
             "fontSize": {
               "expr": {
                 "Literal": {
@@ -183,10 +187,54 @@
                 }
               }
             },
-            "position": {
+            "wordWrap": {
               "expr": {
                 "Literal": {
-                  "Value": "'Bottom'"
+                  "Value": "true"
+                }
+              }
+            },
+            "fontColorPrimary": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#F2F7FF'"
+                    }
+                  }
+                }
+              }
+            },
+            "backColorPrimary": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#182A43'"
+                    }
+                  }
+                }
+              }
+            },
+            "fontColorSecondary": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#F2F7FF'"
+                    }
+                  }
+                }
+              }
+            },
+            "backColorSecondary": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#1D3250'"
+                    }
+                  }
                 }
               }
             }
@@ -337,7 +385,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Partenaires par segment'"
+                  "Value": "'Profil des segments'"
                 }
               }
             },

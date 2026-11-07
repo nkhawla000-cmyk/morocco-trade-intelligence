@@ -25,33 +25,33 @@ table mart_trade_overview
 		formatString: 0
 		lineageTag: c8cd5766-5678-5c82-bd85-ca75d95b128e
 
-	measure 'Exportations, dernière année' = ```
+	measure Exportations = ```
 			VAR LastYear = MAX ( mart_trade_overview[year] )
 			RETURN
 			    CALCULATE ( [Exportations (USD)], mart_trade_overview[year] = LastYear )
 			```
 		formatString: #,0
-		lineageTag: 26de17d9-1a1c-5e3d-9a24-9edf9eeffa59
+		lineageTag: 74e05d70-2abc-5ede-a309-9559ada2c6ef
 
-	measure 'Importations, dernière année' = ```
+	measure Importations = ```
 			VAR LastYear = MAX ( mart_trade_overview[year] )
 			RETURN
 			    CALCULATE ( [Importations (USD)], mart_trade_overview[year] = LastYear )
 			```
 		formatString: #,0
-		lineageTag: 013a560e-de30-58e3-9c5f-e912f5da26c8
+		lineageTag: fd3788b3-9471-534d-99ab-e78f3b18a187
 
-	measure 'Solde, dernière année' = ```
-			[Exportations, dernière année] - [Importations, dernière année]
+	measure 'Solde commercial' = ```
+			[Exportations] - [Importations]
 			```
 		formatString: #,0
-		lineageTag: 4c270e3a-d8c8-5ab5-a248-44566246c2c7
+		lineageTag: ff454cb8-4750-5f88-9994-427246d5612c
 
-	measure 'Taux de couverture, dernière année' = ```
-			DIVIDE ( [Exportations, dernière année], [Importations, dernière année] )
+	measure 'Taux de couverture' = ```
+			DIVIDE ( [Exportations], [Importations] )
 			```
 		formatString: 0.0%
-		lineageTag: 22f08f87-2197-5a1d-b317-2b528d04cb45
+		lineageTag: c14727e1-d2dd-5065-a0a9-f8ed676e3682
 
 	column year
 		dataType: int64
@@ -124,6 +124,14 @@ table mart_trade_overview
 
 		annotation SummarizationSetBy = User
 
+	column series_break_label
+		dataType: string
+		lineageTag: 672b9270-402a-5620-b78f-32b39194bc32
+		summarizeBy: none
+		sourceColumn: series_break_label
+
+		annotation SummarizationSetBy = User
+
 	partition mart_trade_overview = m
 		mode: import
 		source =
@@ -131,8 +139,10 @@ table mart_trade_overview
 				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/nkhawla000-cmyk/morocco-trade-intelligence/main/data/marts/mart_trade_overview.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
 				    Blanks = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, {"year", "exports_usd", "imports_usd", "trade_balance_usd", "coverage_ratio", "exports_growth", "imports_growth", "possible_series_break"}),
-				    Typed = Table.TransformColumnTypes(Blanks, {{"year", Int64.Type}, {"exports_usd", type number}, {"imports_usd", type number}, {"trade_balance_usd", type number}, {"coverage_ratio", type number}, {"exports_growth", type number}, {"imports_growth", type number}, {"possible_series_break", type logical}}, "en-US")
+				    Typed = Table.TransformColumnTypes(Blanks, {{"year", Int64.Type}, {"exports_usd", type number}, {"imports_usd", type number}, {"trade_balance_usd", type number}, {"coverage_ratio", type number}, {"exports_growth", type number}, {"imports_growth", type number}, {"possible_series_break", type logical}}, "en-US"),
+				    Derived1 = Table.AddColumn(Typed, "series_break_label", each if [possible_series_break] = true then "Oui" else "Non", type text),
+				    Prepared = Derived1
 				in
-				    Typed
+				    Prepared
 
 	annotation PBI_ResultType = Table

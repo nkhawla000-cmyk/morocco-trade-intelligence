@@ -23,11 +23,11 @@
                       "Entity": "mart_trade_overview"
                     }
                   },
-                  "Property": "Taux de couverture, dernière année"
+                  "Property": "Taux de couverture"
                 }
               },
-              "queryRef": "mart_trade_overview.Taux de couverture, dernière année",
-              "nativeQueryRef": "Taux de couverture, dernière année"
+              "queryRef": "mart_trade_overview.Taux de couverture",
+              "nativeQueryRef": "Taux de couverture"
             }
           ]
         }
@@ -109,6 +109,13 @@
               "expr": {
                 "Literal": {
                   "Value": "24D"
+                }
+              }
+            },
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
                 }
               }
             }

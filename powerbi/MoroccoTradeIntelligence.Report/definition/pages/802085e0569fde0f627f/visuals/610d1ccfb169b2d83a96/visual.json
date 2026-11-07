@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "mart_flow_anomalies.year",
-              "nativeQueryRef": "year"
+              "nativeQueryRef": "year",
+              "displayName": "Année"
             },
             {
               "field": {
@@ -37,11 +38,12 @@
                       "Entity": "mart_flow_anomalies"
                     }
                   },
-                  "Property": "flow_code"
+                  "Property": "flow_label"
                 }
               },
-              "queryRef": "mart_flow_anomalies.flow_code",
-              "nativeQueryRef": "flow_code"
+              "queryRef": "mart_flow_anomalies.flow_label",
+              "nativeQueryRef": "flow_label",
+              "displayName": "Flux"
             },
             {
               "field": {
@@ -55,7 +57,8 @@
                 }
               },
               "queryRef": "mart_flow_anomalies.partner_name",
-              "nativeQueryRef": "partner_name"
+              "nativeQueryRef": "partner_name",
+              "displayName": "Partenaire"
             },
             {
               "field": {
@@ -69,7 +72,8 @@
                 }
               },
               "queryRef": "mart_flow_anomalies.previous_value_usd",
-              "nativeQueryRef": "previous_value_usd"
+              "nativeQueryRef": "previous_value_usd",
+              "displayName": "Année précédente (USD)"
             },
             {
               "field": {
@@ -83,7 +87,8 @@
                 }
               },
               "queryRef": "mart_flow_anomalies.trade_value_usd",
-              "nativeQueryRef": "trade_value_usd"
+              "nativeQueryRef": "trade_value_usd",
+              "displayName": "Année (USD)"
             },
             {
               "field": {
@@ -97,7 +102,8 @@
                 }
               },
               "queryRef": "mart_flow_anomalies.change_ratio",
-              "nativeQueryRef": "change_ratio"
+              "nativeQueryRef": "change_ratio",
+              "displayName": "Variation"
             },
             {
               "field": {
@@ -111,7 +117,8 @@
                 }
               },
               "queryRef": "mart_flow_anomalies.robust_z",
-              "nativeQueryRef": "robust_z"
+              "nativeQueryRef": "robust_z",
+              "displayName": "Score z robuste"
             }
           ]
         }
@@ -177,6 +184,13 @@
               "expr": {
                 "Literal": {
                   "Value": "10D"
+                }
+              }
+            },
+            "wordWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             },

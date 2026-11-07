@@ -1,19 +1,56 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
-  "name": "574c3059b638028a1feb",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "344575b8469888acb555",
   "position": {
     "x": 20,
     "y": 112,
     "z": 600,
-    "height": 80,
-    "width": 240,
+    "height": 334,
+    "width": 1240,
     "tabOrder": 6
   },
   "visual": {
-    "visualType": "cardVisual",
+    "visualType": "scatterChart",
     "query": {
       "queryState": {
-        "Data": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "mart_partner_segments"
+                    }
+                  },
+                  "Property": "partner_name"
+                }
+              },
+              "queryRef": "mart_partner_segments.partner_name",
+              "nativeQueryRef": "partner_name",
+              "active": true
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "mart_partner_segments"
+                    }
+                  },
+                  "Property": "segment_code"
+                }
+              },
+              "queryRef": "mart_partner_segments.segment_code",
+              "nativeQueryRef": "segment_code"
+            }
+          ]
+        },
+        "X": {
           "projections": [
             {
               "field": {
@@ -23,18 +60,102 @@
                       "Entity": "mart_partner_segments"
                     }
                   },
-                  "Property": "Partenaires segmentés"
+                  "Property": "Part des exportations (moyenne)"
                 }
               },
-              "queryRef": "mart_partner_segments.Partenaires segmentés",
-              "nativeQueryRef": "Partenaires segmentés"
+              "queryRef": "mart_partner_segments.Part des exportations (moyenne)",
+              "nativeQueryRef": "Part des exportations (moyenne)"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "mart_partner_segments"
+                    }
+                  },
+                  "Property": "Croissance annuelle (moyenne)"
+                }
+              },
+              "queryRef": "mart_partner_segments.Croissance annuelle (moyenne)",
+              "nativeQueryRef": "Croissance annuelle (moyenne)"
+            }
+          ]
+        },
+        "Size": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "mart_partner_segments"
+                    }
+                  },
+                  "Property": "Commerce moyen (USD)"
+                }
+              },
+              "queryRef": "mart_partner_segments.Commerce moyen (USD)",
+              "nativeQueryRef": "Commerce moyen (USD)"
             }
           ]
         }
       }
     },
     "objects": {
-      "accentBar": [
+      "categoryAxis": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "11D"
+                }
+              }
+            },
+            "labelColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#DCE9F8'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "valueAxis": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "11D"
+                }
+              }
+            },
+            "labelColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#B8CBE1'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "legend": [
         {
           "properties": {
             "show": {
@@ -44,111 +165,38 @@
                 }
               }
             },
-            "color": {
+            "showTitle": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "labelColor": {
               "solid": {
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#B8A5FF'"
+                      "Value": "'#DCE9F8'"
                     }
                   }
                 }
               }
             },
-            "width": {
+            "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "4D"
+                  "Value": "11D"
                 }
               }
             },
             "position": {
               "expr": {
                 "Literal": {
-                  "Value": "'Left'"
+                  "Value": "'Right'"
                 }
               }
             }
-          },
-          "selector": {
-            "id": "default"
-          }
-        }
-      ],
-      "outline": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          },
-          "selector": {
-            "id": "default"
-          }
-        }
-      ],
-      "value": [
-        {
-          "properties": {
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#F2F7FF'"
-                    }
-                  }
-                }
-              }
-            },
-            "fontSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "24D"
-                }
-              }
-            }
-          },
-          "selector": {
-            "id": "default"
-          }
-        }
-      ],
-      "label": [
-        {
-          "properties": {
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#A7B9CF'"
-                    }
-                  }
-                }
-              }
-            },
-            "fontSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "12D"
-                }
-              }
-            },
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            }
-          },
-          "selector": {
-            "id": "default"
           }
         }
       ]
@@ -289,7 +337,46 @@
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Chaque point est un pays : à droite, débouchés à l''export ; à gauche, fournisseurs ; en haut, forte croissance ; taille = volume des échanges'"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#F2F7FF'"
+                    }
+                  }
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            },
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Segoe UI Semibold'"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }
